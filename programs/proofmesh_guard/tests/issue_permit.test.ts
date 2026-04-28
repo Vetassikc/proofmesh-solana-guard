@@ -2,7 +2,11 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import assert from "node:assert/strict";
 
-type DecisionValue = { release: Record<string, never> } | { cap: Record<string, never> } | { block: Record<string, never> };
+type DecisionValue =
+  | { release: Record<string, never> }
+  | { cap: Record<string, never> }
+  | { hold: Record<string, never> }
+  | { block: Record<string, never> };
 
 interface IssuePermitInput {
   intentHash: number[];
@@ -21,7 +25,10 @@ interface PermitAccount {
   requestedAmountLamports: anchor.BN;
   approvedAmountLamports: anchor.BN;
   issuer: anchor.web3.PublicKey;
-  executionStatus: { notExecuted?: Record<string, never> };
+  executionStatus: {
+    notExecuted?: Record<string, never>;
+    executed?: Record<string, never>;
+  };
 }
 
 type IssuePermitBuilder = {
@@ -34,9 +41,24 @@ type IssuePermitBuilder = {
   };
 };
 
+type ExecutePayoutBuilder = {
+  accounts(accounts: {
+    permit: anchor.web3.PublicKey;
+    treasury: anchor.web3.PublicKey;
+    recipient: anchor.web3.PublicKey;
+    systemProgram: anchor.web3.PublicKey;
+  }): {
+    signers(signers: anchor.web3.Keypair[]): {
+      rpc(): Promise<string>;
+    };
+    rpc(): Promise<string>;
+  };
+};
+
 type ProofmeshGuardProgram = Program & {
   methods: {
     issuePermit(args: IssuePermitInput): IssuePermitBuilder;
+    executePayout(): ExecutePayoutBuilder;
   };
   account: {
     permit: {
@@ -56,10 +78,6 @@ function bytes32(seed: number): number[] {
   return Array.from(value);
 }
 
-function publicKey(seed: number): anchor.web3.PublicKey {
-  return new anchor.web3.PublicKey(Buffer.from(bytes32(seed)));
-}
-
 function permitPda(intentHash: number[]): anchor.web3.PublicKey {
   return anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("permit"), Buffer.from(intentHash)],
@@ -67,7 +85,7 @@ function permitPda(intentHash: number[]): anchor.web3.PublicKey {
   )[0];
 }
 
-function decision(name: "release" | "cap" | "block"): DecisionValue {
+function decision(name: "release" | "cap" | "hold" | "block"): DecisionValue {
   return { [name]: {} } as DecisionValue;
 }
 
@@ -76,8 +94,25 @@ describe("proofmesh_guard issue_permit", () => {
 
   const program = anchor.workspace.proofmeshGuard as unknown as ProofmeshGuardProgram;
   const provider = anchor.getProvider() as anchor.AnchorProvider;
-  const treasury = publicKey(201);
-  const recipient = publicKey(202);
+
+  async function fundedAccount(lamports = 2_000_000_000): Promise<anchor.web3.Keypair> {
+    const account = anchor.web3.Keypair.generate();
+    const signature = await provider.connection.requestAirdrop(
+      account.publicKey,
+      lamports
+    );
+    const blockhash = await provider.connection.getLatestBlockhash();
+
+    await provider.connection.confirmTransaction(
+      {
+        signature,
+        ...blockhash
+      },
+      "confirmed"
+    );
+
+    return account;
+  }
 
   async function issuePermit(args: {
     intentHash: number[];
@@ -85,8 +120,13 @@ describe("proofmesh_guard issue_permit", () => {
     decisionValue: ReturnType<typeof decision>;
     requestedAmountLamports: anchor.BN;
     approvedAmountLamports: anchor.BN;
+    treasury?: anchor.web3.PublicKey;
+    recipient?: anchor.web3.PublicKey;
+    expiresAt?: anchor.BN;
   }) {
     const permit = permitPda(args.intentHash);
+    const treasury = args.treasury ?? provider.wallet.publicKey;
+    const recipient = args.recipient ?? provider.wallet.publicKey;
 
     await program.methods
       .issuePermit({
@@ -97,7 +137,7 @@ describe("proofmesh_guard issue_permit", () => {
         approvedAmountLamports: args.approvedAmountLamports,
         treasury,
         recipient,
-        expiresAt: new anchor.BN(1770000000)
+        expiresAt: args.expiresAt ?? new anchor.BN(1900000000)
       })
       .accounts({
         permit,
@@ -110,6 +150,23 @@ describe("proofmesh_guard issue_permit", () => {
       permit,
       account: await program.account.permit.fetch(permit)
     };
+  }
+
+  async function executePayout(args: {
+    permit: anchor.web3.PublicKey;
+    treasury: anchor.web3.Keypair;
+    recipient: anchor.web3.PublicKey;
+  }) {
+    return program.methods
+      .executePayout()
+      .accounts({
+        permit: args.permit,
+        treasury: args.treasury.publicKey,
+        recipient: args.recipient,
+        systemProgram: anchor.web3.SystemProgram.programId
+      })
+      .signers([args.treasury])
+      .rpc();
   }
 
   it("issues RELEASE permit", async () => {
@@ -197,6 +254,225 @@ describe("proofmesh_guard issue_permit", () => {
           approvedAmountLamports: new anchor.BN(500_000_000)
         }),
       /already in use|already initialized|custom program error/
+    );
+  });
+
+  it("executes RELEASE permit and transfers approved amount", async () => {
+    const treasury = await fundedAccount();
+    const recipient = await fundedAccount(1_000_000);
+    const approvedAmount = new anchor.BN(100_000_000);
+    const { permit } = await issuePermit({
+      intentHash: bytes32(11),
+      proofRoot: bytes32(111),
+      decisionValue: decision("release"),
+      requestedAmountLamports: approvedAmount,
+      approvedAmountLamports: approvedAmount,
+      treasury: treasury.publicKey,
+      recipient: recipient.publicKey
+    });
+    const recipientBefore = await provider.connection.getBalance(
+      recipient.publicKey
+    );
+
+    await executePayout({
+      permit,
+      treasury,
+      recipient: recipient.publicKey
+    });
+
+    const recipientAfter = await provider.connection.getBalance(
+      recipient.publicKey
+    );
+    const account = await program.account.permit.fetch(permit);
+
+    assert.equal(recipientAfter - recipientBefore, approvedAmount.toNumber());
+    assert.equal(account.executionStatus.executed !== undefined, true);
+  });
+
+  it("executes CAP permit and transfers capped approved amount", async () => {
+    const treasury = await fundedAccount();
+    const recipient = await fundedAccount(1_000_000);
+    const approvedAmount = new anchor.BN(100_000_000);
+    const { permit } = await issuePermit({
+      intentHash: bytes32(12),
+      proofRoot: bytes32(112),
+      decisionValue: decision("cap"),
+      requestedAmountLamports: new anchor.BN(150_000_000),
+      approvedAmountLamports: approvedAmount,
+      treasury: treasury.publicKey,
+      recipient: recipient.publicKey
+    });
+    const recipientBefore = await provider.connection.getBalance(
+      recipient.publicKey
+    );
+
+    await executePayout({
+      permit,
+      treasury,
+      recipient: recipient.publicKey
+    });
+
+    const recipientAfter = await provider.connection.getBalance(
+      recipient.publicKey
+    );
+
+    assert.equal(recipientAfter - recipientBefore, approvedAmount.toNumber());
+  });
+
+  it("rejects BLOCK permit execution", async () => {
+    const treasury = await fundedAccount();
+    const recipient = await fundedAccount(1_000_000);
+    const { permit } = await issuePermit({
+      intentHash: bytes32(13),
+      proofRoot: bytes32(113),
+      decisionValue: decision("block"),
+      requestedAmountLamports: new anchor.BN(100_000_000),
+      approvedAmountLamports: new anchor.BN(0),
+      treasury: treasury.publicKey,
+      recipient: recipient.publicKey
+    });
+
+    await assert.rejects(
+      () =>
+        executePayout({
+          permit,
+          treasury,
+          recipient: recipient.publicKey
+        }),
+      /PermitDecisionCannotExecute|Only RELEASE and CAP permits can execute/
+    );
+  });
+
+  it("rejects HOLD permit execution", async () => {
+    const treasury = await fundedAccount();
+    const recipient = await fundedAccount(1_000_000);
+    const { permit } = await issuePermit({
+      intentHash: bytes32(14),
+      proofRoot: bytes32(114),
+      decisionValue: decision("hold"),
+      requestedAmountLamports: new anchor.BN(100_000_000),
+      approvedAmountLamports: new anchor.BN(0),
+      treasury: treasury.publicKey,
+      recipient: recipient.publicKey
+    });
+
+    await assert.rejects(
+      () =>
+        executePayout({
+          permit,
+          treasury,
+          recipient: recipient.publicKey
+        }),
+      /PermitDecisionCannotExecute|Only RELEASE and CAP permits can execute/
+    );
+  });
+
+  it("rejects wrong treasury", async () => {
+    const treasury = await fundedAccount();
+    const wrongTreasury = await fundedAccount();
+    const recipient = await fundedAccount(1_000_000);
+    const approvedAmount = new anchor.BN(100_000_000);
+    const { permit } = await issuePermit({
+      intentHash: bytes32(15),
+      proofRoot: bytes32(115),
+      decisionValue: decision("release"),
+      requestedAmountLamports: approvedAmount,
+      approvedAmountLamports: approvedAmount,
+      treasury: treasury.publicKey,
+      recipient: recipient.publicKey
+    });
+
+    await assert.rejects(
+      () =>
+        executePayout({
+          permit,
+          treasury: wrongTreasury,
+          recipient: recipient.publicKey
+        }),
+      /TreasuryMismatch|Treasury account does not match permit/
+    );
+  });
+
+  it("rejects wrong recipient", async () => {
+    const treasury = await fundedAccount();
+    const recipient = await fundedAccount(1_000_000);
+    const wrongRecipient = await fundedAccount(1_000_000);
+    const approvedAmount = new anchor.BN(100_000_000);
+    const { permit } = await issuePermit({
+      intentHash: bytes32(16),
+      proofRoot: bytes32(116),
+      decisionValue: decision("release"),
+      requestedAmountLamports: approvedAmount,
+      approvedAmountLamports: approvedAmount,
+      treasury: treasury.publicKey,
+      recipient: recipient.publicKey
+    });
+
+    await assert.rejects(
+      () =>
+        executePayout({
+          permit,
+          treasury,
+          recipient: wrongRecipient.publicKey
+        }),
+      /RecipientMismatch|Recipient account does not match permit/
+    );
+  });
+
+  it("rejects expired permit", async () => {
+    const treasury = await fundedAccount();
+    const recipient = await fundedAccount(1_000_000);
+    const approvedAmount = new anchor.BN(100_000_000);
+    const { permit } = await issuePermit({
+      intentHash: bytes32(17),
+      proofRoot: bytes32(117),
+      decisionValue: decision("release"),
+      requestedAmountLamports: approvedAmount,
+      approvedAmountLamports: approvedAmount,
+      treasury: treasury.publicKey,
+      recipient: recipient.publicKey,
+      expiresAt: new anchor.BN(1)
+    });
+
+    await assert.rejects(
+      () =>
+        executePayout({
+          permit,
+          treasury,
+          recipient: recipient.publicKey
+        }),
+      /PermitExpired|Permit is expired/
+    );
+  });
+
+  it("rejects duplicate execution replay", async () => {
+    const treasury = await fundedAccount();
+    const recipient = await fundedAccount(1_000_000);
+    const approvedAmount = new anchor.BN(100_000_000);
+    const { permit } = await issuePermit({
+      intentHash: bytes32(18),
+      proofRoot: bytes32(118),
+      decisionValue: decision("release"),
+      requestedAmountLamports: approvedAmount,
+      approvedAmountLamports: approvedAmount,
+      treasury: treasury.publicKey,
+      recipient: recipient.publicKey
+    });
+
+    await executePayout({
+      permit,
+      treasury,
+      recipient: recipient.publicKey
+    });
+
+    await assert.rejects(
+      () =>
+        executePayout({
+          permit,
+          treasury,
+          recipient: recipient.publicKey
+        }),
+      /PermitAlreadyExecuted|Permit has already been executed/
     );
   });
 });

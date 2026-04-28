@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_lang::system_program::{transfer, Transfer};
 
 declare_id!("Guard111111111111111111111111111111111111111");
 
@@ -24,6 +25,46 @@ pub mod proofmesh_guard {
 
         Ok(())
     }
+
+    pub fn execute_payout(ctx: Context<ExecutePayout>) -> Result<()> {
+        let permit = &mut ctx.accounts.permit;
+        let now = Clock::get()?.unix_timestamp;
+
+        require!(
+            matches!(permit.decision, GuardDecision::Release | GuardDecision::Cap),
+            GuardError::PermitDecisionCannotExecute
+        );
+        require_keys_eq!(
+            ctx.accounts.treasury.key(),
+            permit.treasury,
+            GuardError::TreasuryMismatch
+        );
+        require_keys_eq!(
+            ctx.accounts.recipient.key(),
+            permit.recipient,
+            GuardError::RecipientMismatch
+        );
+        require!(permit.expires_at >= now, GuardError::PermitExpired);
+        require!(
+            permit.execution_status == ExecutionStatus::NotExecuted,
+            GuardError::PermitAlreadyExecuted
+        );
+
+        transfer(
+            CpiContext::new(
+                ctx.accounts.system_program.to_account_info(),
+                Transfer {
+                    from: ctx.accounts.treasury.to_account_info(),
+                    to: ctx.accounts.recipient.to_account_info(),
+                },
+            ),
+            permit.approved_amount_lamports,
+        )?;
+
+        permit.execution_status = ExecutionStatus::Executed;
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -39,6 +80,22 @@ pub struct IssuePermit<'info> {
     pub permit: Account<'info, Permit>,
     #[account(mut)]
     pub issuer: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct ExecutePayout<'info> {
+    #[account(
+        mut,
+        seeds = [b"permit", permit.intent_hash.as_ref()],
+        bump = permit.bump
+    )]
+    pub permit: Account<'info, Permit>,
+    #[account(mut)]
+    pub treasury: Signer<'info>,
+    /// CHECK: The recipient is constrained by the permit and receives native SOL.
+    #[account(mut)]
+    pub recipient: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }
 
@@ -116,6 +173,16 @@ pub enum GuardError {
     InvalidReleaseAmount,
     #[msg("HOLD permits must approve zero lamports")]
     InvalidHoldAmount,
+    #[msg("Only RELEASE and CAP permits can execute")]
+    PermitDecisionCannotExecute,
+    #[msg("Treasury account does not match permit")]
+    TreasuryMismatch,
+    #[msg("Recipient account does not match permit")]
+    RecipientMismatch,
+    #[msg("Permit is expired")]
+    PermitExpired,
+    #[msg("Permit has already been executed")]
+    PermitAlreadyExecuted,
 }
 
 fn validate_amount_decision(
