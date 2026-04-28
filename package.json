@@ -10,6 +10,12 @@
     "node": ">=20"
   },
   "scripts": {
-    "check": "echo \"No runtime checks configured yet\""
+    "check": "pnpm typecheck && pnpm test",
+    "test": "pnpm --filter @proofmesh/guard-sdk test",
+    "typecheck": "pnpm --filter @proofmesh/guard-sdk typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "typescript": "^5.7.2"
   }
 }
