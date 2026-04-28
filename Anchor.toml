@@ -10,7 +10,12 @@ url = "https://api.apr.dev"
 
 [provider]
 cluster = "Localnet"
-wallet = "~/.config/solana/id.json"
+wallet = ".anchor/test-wallet.json"
+
+[test.validator]
+rpc_port = 18897
+faucet_port = 19901
+ledger = ".anchor/test-ledger"
 
 [scripts]
 test = "pnpm ts-mocha -p ./tsconfig.anchor.json -t 1000000 programs/proofmesh_guard/tests/**/*.test.ts"
