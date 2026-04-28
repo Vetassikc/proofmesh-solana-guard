@@ -98,3 +98,69 @@ test("permit verification rejects mismatched proof bundles", () => {
   assert.equal(result.valid, false);
   assert.ok(result.errors.includes("Proof root does not match permit"));
 });
+
+test("permit verification rejects tampered decisions", () => {
+  const { intent, proofs, generatedAt } = guardScenarios.release;
+  const bundle = buildProofBundle(intent, proofs, generatedAt);
+  const decision = evaluatePayoutIntent(intent, bundle, DEFAULT_GUARD_POLICY);
+  const permit = issueTrustPermit(intent, bundle, decision, {
+    issuer: "proofmesh-demo-issuer",
+    issuedAt: generatedAt
+  });
+
+  const result = verifyTrustPermit(
+    {
+      ...permit,
+      decision: "BLOCK"
+    },
+    intent,
+    bundle
+  );
+
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes("Permit id does not match permit fields"));
+});
+
+test("permit verification rejects tampered approved amounts", () => {
+  const { intent, proofs, generatedAt } = guardScenarios.release;
+  const bundle = buildProofBundle(intent, proofs, generatedAt);
+  const decision = evaluatePayoutIntent(intent, bundle, DEFAULT_GUARD_POLICY);
+  const permit = issueTrustPermit(intent, bundle, decision, {
+    issuer: "proofmesh-demo-issuer",
+    issuedAt: generatedAt
+  });
+
+  const result = verifyTrustPermit(
+    {
+      ...permit,
+      approvedAmountLamports: "1"
+    },
+    intent,
+    bundle
+  );
+
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes("Permit id does not match permit fields"));
+});
+
+test("permit verification rejects tampered issuers", () => {
+  const { intent, proofs, generatedAt } = guardScenarios.release;
+  const bundle = buildProofBundle(intent, proofs, generatedAt);
+  const decision = evaluatePayoutIntent(intent, bundle, DEFAULT_GUARD_POLICY);
+  const permit = issueTrustPermit(intent, bundle, decision, {
+    issuer: "proofmesh-demo-issuer",
+    issuedAt: generatedAt
+  });
+
+  const result = verifyTrustPermit(
+    {
+      ...permit,
+      issuer: "different-issuer"
+    },
+    intent,
+    bundle
+  );
+
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes("Permit id does not match permit fields"));
+});

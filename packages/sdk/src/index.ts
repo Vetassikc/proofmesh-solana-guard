@@ -59,6 +59,15 @@ export interface TrustPermit {
   transactionSignature?: string;
 }
 
+export interface TrustPermitCore {
+  approvedAmountLamports: string;
+  decision: GuardDecisionKind;
+  intentHash: string;
+  issuer: string;
+  proofRoot: string;
+  requestedAmountLamports: string;
+}
+
 export interface VerificationResult {
   valid: boolean;
   errors: readonly string[];
@@ -371,23 +380,38 @@ export function evaluatePayoutIntent(
   };
 }
 
+export function buildTrustPermitCore(input: TrustPermitCore): TrustPermitCore {
+  return {
+    approvedAmountLamports: input.approvedAmountLamports,
+    decision: input.decision,
+    intentHash: input.intentHash,
+    issuer: input.issuer,
+    proofRoot: input.proofRoot,
+    requestedAmountLamports: input.requestedAmountLamports
+  };
+}
+
+export function computeTrustPermitId(input: TrustPermitCore): string {
+  return hashCanonicalJson(buildTrustPermitCore(input));
+}
+
 export function issueTrustPermit(
   intent: PayoutIntent,
   bundle: ProofBundle,
   decision: GuardDecision,
   options: { issuer: string; issuedAt: string }
 ): TrustPermit {
-  const permitCore = {
+  const permitCore = buildTrustPermitCore({
     approvedAmountLamports: decision.approvedAmountLamports,
     decision: decision.decision,
     intentHash: bundle.intentHash,
     issuer: options.issuer,
     proofRoot: bundle.proofRoot,
     requestedAmountLamports: intent.requestedAmountLamports
-  };
+  });
 
   return {
-    permitId: hashCanonicalJson(permitCore),
+    permitId: computeTrustPermitId(permitCore),
     intentHash: bundle.intentHash,
     proofRoot: bundle.proofRoot,
     decision: decision.decision,
@@ -406,7 +430,19 @@ export function verifyTrustPermit(
 ): VerificationResult {
   const intentHash = hashPayoutIntent(intent);
   const proofRoot = generateProofRoot(bundle.proofs);
+  const expectedPermitId = computeTrustPermitId({
+    approvedAmountLamports: permit.approvedAmountLamports,
+    decision: permit.decision,
+    intentHash: permit.intentHash,
+    issuer: permit.issuer,
+    proofRoot: permit.proofRoot,
+    requestedAmountLamports: permit.requestedAmountLamports
+  });
   const errors: string[] = [];
+
+  if (permit.permitId !== expectedPermitId) {
+    errors.push("Permit id does not match permit fields");
+  }
 
   if (permit.intentHash !== intentHash) {
     errors.push("Intent hash does not match permit");
