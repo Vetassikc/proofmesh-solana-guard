@@ -5,15 +5,24 @@
   "description": "Trust permits for Solana agent payments.",
   "license": "MIT",
   "type": "module",
+  "dependencies": {
+    "@proofmesh/guard-sdk": "workspace:*"
+  },
   "packageManager": "pnpm@10.0.0",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "check": "pnpm typecheck && pnpm test",
+    "build:scripts": "pnpm --filter @proofmesh/guard-sdk build && tsc -p tsconfig.scripts.json",
+    "devnet:block": "pnpm build:scripts && node scripts/dist/devnet/run_guarded_payout.js block",
+    "devnet:cap": "pnpm build:scripts && node scripts/dist/devnet/run_guarded_payout.js cap",
+    "devnet:dry-run": "pnpm build:scripts && node scripts/dist/devnet/run_guarded_payout.js release --dry-run",
+    "devnet:release": "pnpm build:scripts && node scripts/dist/devnet/run_guarded_payout.js release",
+    "test:scripts": "pnpm build:scripts && node --test \"scripts/dist/devnet/*.test.js\"",
     "test:anchor": "anchor test",
-    "test": "pnpm --filter @proofmesh/guard-sdk test",
-    "typecheck": "pnpm --filter @proofmesh/guard-sdk typecheck"
+    "test": "pnpm --filter @proofmesh/guard-sdk test && pnpm test:scripts",
+    "typecheck": "pnpm --filter @proofmesh/guard-sdk typecheck && pnpm --filter @proofmesh/guard-sdk build && tsc -p tsconfig.scripts.json --noEmit"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.31.1",
