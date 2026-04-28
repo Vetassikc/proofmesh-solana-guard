@@ -11,11 +11,15 @@
   },
   "scripts": {
     "check": "pnpm typecheck && pnpm test",
+    "test:anchor": "anchor test",
     "test": "pnpm --filter @proofmesh/guard-sdk test",
     "typecheck": "pnpm --filter @proofmesh/guard-sdk typecheck"
   },
   "devDependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20.17.10",
+    "ts-mocha": "^10.0.0",
     "typescript": "^5.7.2"
   }
 }

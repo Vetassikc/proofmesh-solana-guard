@@ -4,6 +4,8 @@ dist-test/
 coverage/
 .turbo/
 .next/
+target/
+.anchor/
 .env
 .env.*
 !.env.example
