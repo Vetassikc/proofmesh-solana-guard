@@ -1,0 +1,15 @@
+{
+  "name": "proofmesh-solana-guard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Trust permits for Solana agent payments.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "echo \"No runtime checks configured yet\""
+  }
+}
