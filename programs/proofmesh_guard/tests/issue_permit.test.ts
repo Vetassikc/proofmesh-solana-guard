@@ -67,10 +67,6 @@ type ProofmeshGuardProgram = Program & {
   };
 };
 
-const PROGRAM_ID = new anchor.web3.PublicKey(
-  "Guard111111111111111111111111111111111111111"
-);
-
 function bytes32(seed: number): number[] {
   const value = Buffer.alloc(32);
   value[31] = seed;
@@ -78,10 +74,13 @@ function bytes32(seed: number): number[] {
   return Array.from(value);
 }
 
-function permitPda(intentHash: number[]): anchor.web3.PublicKey {
+function permitPda(
+  intentHash: number[],
+  programId: anchor.web3.PublicKey
+): anchor.web3.PublicKey {
   return anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("permit"), Buffer.from(intentHash)],
-    PROGRAM_ID
+    programId
   )[0];
 }
 
@@ -124,7 +123,7 @@ describe("proofmesh_guard issue_permit", () => {
     recipient?: anchor.web3.PublicKey;
     expiresAt?: anchor.BN;
   }) {
-    const permit = permitPda(args.intentHash);
+    const permit = permitPda(args.intentHash, program.programId);
     const treasury = args.treasury ?? provider.wallet.publicKey;
     const recipient = args.recipient ?? provider.wallet.publicKey;
 
@@ -185,7 +184,7 @@ describe("proofmesh_guard issue_permit", () => {
     assert.equal(account.approvedAmountLamports.toString(), "500000000");
     assert.equal(account.issuer.toBase58(), provider.wallet.publicKey.toBase58());
     assert.equal(account.executionStatus.notExecuted !== undefined, true);
-    assert.equal(permit.toBase58(), permitPda(intentHash).toBase58());
+    assert.equal(permit.toBase58(), permitPda(intentHash, program.programId).toBase58());
   });
 
   it("issues CAP permit", async () => {

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program::{transfer, Transfer};
 
-declare_id!("Guard111111111111111111111111111111111111111");
+declare_id!("5LUyS5ZN4F4qK8xQy2RnABcoKAFFo4VuApLGKzyF4xjk");
 
 #[program]
 pub mod proofmesh_guard {

@@ -1,21 +1,32 @@
+[toolchain]
+
 [features]
 resolution = true
 skip-lint = false
 
 [programs.localnet]
-proofmesh_guard = "Guard111111111111111111111111111111111111111"
+proofmesh_guard = "5LUyS5ZN4F4qK8xQy2RnABcoKAFFo4VuApLGKzyF4xjk"
+
+[programs.devnet]
+proofmesh_guard = "5LUyS5ZN4F4qK8xQy2RnABcoKAFFo4VuApLGKzyF4xjk"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "localnet"
 wallet = ".anchor/test-wallet.json"
-
-[test.validator]
-rpc_port = 18897
-faucet_port = 19901
-ledger = ".anchor/test-ledger"
 
 [scripts]
 test = "pnpm ts-mocha -p ./tsconfig.anchor.json -t 1000000 programs/proofmesh_guard/tests/**/*.test.ts"
+
+[test]
+startup_wait = 5000
+shutdown_wait = 2000
+upgradeable = false
+
+[test.validator]
+bind_address = "0.0.0.0"
+faucet_port = 19901
+ledger = ".anchor/test-ledger"
+rpc_port = 18897

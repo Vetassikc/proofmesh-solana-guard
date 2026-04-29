@@ -17,6 +17,14 @@ test("parseCliArgs accepts a positional dry-run scenario", () => {
   });
 });
 
+test("parseCliArgs ignores a pnpm argument separator", () => {
+  assert.deepEqual(parseCliArgs(["release", "--", "--run-id", "demo-001"]), {
+    dryRun: false,
+    runId: "demo-001",
+    scenario: "release"
+  });
+});
+
 test("parseCliArgs rejects unsupported scenarios", () => {
   assert.throws(
     () => parseCliArgs(["hold"]),

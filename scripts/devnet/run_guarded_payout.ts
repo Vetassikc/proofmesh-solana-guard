@@ -1,4 +1,4 @@
-import * as anchor from "@coral-xyz/anchor";
+import anchor from "@coral-xyz/anchor";
 import {
   DEFAULT_GUARD_POLICY,
   buildProofBundle,
@@ -78,6 +78,10 @@ export function parseCliArgs(argv: readonly string[]): CliArgs {
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
+
+    if (arg === "--") {
+      continue;
+    }
 
     if (arg === "--dry-run") {
       dryRun = true;
