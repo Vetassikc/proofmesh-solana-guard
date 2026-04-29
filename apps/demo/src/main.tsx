@@ -32,6 +32,11 @@ import {
   type DemoMode,
   type LiveRunPreview
 } from "./liveFlow";
+import {
+  buildEvidencePack,
+  verifyCapturedEvidence,
+  type VerificationCheck
+} from "./verification";
 import "./styles.css";
 
 declare global {
@@ -226,6 +231,169 @@ function EvidenceMode({
         </section>
       </section>
     </>
+  );
+}
+
+function VerificationRow({ check }: { check: VerificationCheck }) {
+  return (
+    <div className={check.ok ? "verify-row pass" : "verify-row fail"}>
+      <span>{check.ok ? "PASS" : "FAIL"}</span>
+      <strong>{check.label}</strong>
+      <em>{check.detail}</em>
+    </div>
+  );
+}
+
+function EvidencePackPanel({
+  label,
+  value
+}: {
+  label: string;
+  value: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <div className="evidence-pack-card">
+      <div className="pack-heading">
+        <strong>{label}</strong>
+        <button className="secondary-action" onClick={() => void handleCopy()} type="button">
+          {copied ? "Copied" : "Copy"}
+        </button>
+      </div>
+      <textarea readOnly value={value} />
+    </div>
+  );
+}
+
+function LedgerVerifyMode() {
+  const verification = useMemo(() => verifyCapturedEvidence(), []);
+  const evidencePack = useMemo(
+    () => buildEvidencePack(verification),
+    [verification]
+  );
+
+  return (
+    <section className="verify-panel">
+      <div className="verify-hero">
+        <div>
+          <p className="eyebrow">Ledger / Verify</p>
+          <h2>Permit evidence check</h2>
+          <p>
+            This ledger recomputes permit PDAs from the captured intent hashes,
+            checks amount invariants, and keeps every scenario explorer-verifiable
+            on Solana devnet.
+          </p>
+        </div>
+        <span className={verification.ok ? "verification-pill pass" : "verification-pill fail"}>
+          {verification.ok ? "All checks pass" : "Check failure"}
+        </span>
+      </div>
+
+      <section className="program-proof">
+        <div>
+          <span>Program id</span>
+          <ExternalLink href={programEvidence.explorerUrl}>
+            {shortHash(programEvidence.programId)}
+          </ExternalLink>
+        </div>
+        <div>
+          <span>Deploy transaction</span>
+          <ExternalLink href={programEvidence.deployUrl}>
+            {shortHash(programEvidence.deploySignature)}
+          </ExternalLink>
+        </div>
+      </section>
+
+      <section className="scenario-ledger-grid">
+        {verification.scenarios.map((result) => (
+          <article className="scenario-ledger-card" key={result.scenario.id}>
+            <div className="decision-header">
+              <div>
+                <p className="eyebrow">{result.scenario.label}</p>
+                <h3>{result.scenario.decision}</h3>
+              </div>
+              <span className={result.ok ? "verification-pill pass" : "verification-pill fail"}>
+                {result.ok ? "Verified" : "Failed"}
+              </span>
+            </div>
+            <dl className="evidence-list">
+              <EvidenceRow
+                href={result.scenario.permitUrl}
+                label="Permit PDA"
+                value={shortHash(result.scenario.permitPda)}
+              />
+              <EvidenceRow
+                label="Expected PDA"
+                value={
+                  result.expectedPermitPda
+                    ? shortHash(result.expectedPermitPda)
+                    : "Not derivable"
+                }
+              />
+              <EvidenceRow
+                label="Intent hash"
+                value={shortHash(result.scenario.intentHash)}
+              />
+              <EvidenceRow
+                label="Proof root"
+                value={shortHash(result.scenario.proofRoot)}
+              />
+              <EvidenceRow
+                href={result.scenario.issueUrl}
+                label="Issue tx"
+                value={shortHash(result.scenario.issueSignature)}
+              />
+              {result.scenario.executeUrl && result.scenario.executeSignature ? (
+                <EvidenceRow
+                  href={result.scenario.executeUrl}
+                  label="Execute tx"
+                  value={shortHash(result.scenario.executeSignature)}
+                />
+              ) : (
+                <EvidenceRow label="Execute tx" value="No execute transaction by design" />
+              )}
+            </dl>
+          </article>
+        ))}
+      </section>
+
+      <section className="verify-results">
+        <div className="section-heading">
+          <p className="eyebrow">Deterministic verification</p>
+          <h3>Internal consistency checks</h3>
+        </div>
+        <div className="verify-table" role="table" aria-label="Permit verification checks">
+          {verification.checks.map((check) => (
+            <VerificationRow check={check} key={check.id} />
+          ))}
+        </div>
+      </section>
+
+      <section className="evidence-pack">
+        <div className="section-heading">
+          <p className="eyebrow">Evidence Pack</p>
+          <h3>Copyable judge summary</h3>
+        </div>
+        <div className="pack-grid">
+          <EvidencePackPanel label="JSON summary" value={evidencePack.json} />
+          <EvidencePackPanel
+            label="Markdown summary"
+            value={evidencePack.markdown}
+          />
+        </div>
+      </section>
+    </section>
   );
 }
 
@@ -561,6 +729,8 @@ function AppContent() {
 
         {mode === "evidence" ? (
           <EvidenceMode selectedId={selectedId} onSelect={setSelectedId} />
+        ) : mode === "ledger" ? (
+          <LedgerVerifyMode />
         ) : (
           <>
             <nav aria-label="Live scenario selection" className="scenario-picker compact">

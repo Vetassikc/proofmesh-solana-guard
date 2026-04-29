@@ -1,6 +1,6 @@
 export type ScenarioId = "release" | "cap" | "block";
 export type Decision = "RELEASE" | "CAP" | "BLOCK";
-export type LedgerKind = "Program" | "Permit" | "Issue" | "Execute";
+export type LedgerKind = "Program" | "Deploy" | "Permit" | "Issue" | "Execute";
 
 export interface ProgramEvidence {
   programId: string;
@@ -146,6 +146,12 @@ export const ledgerRows: readonly LedgerRow[] = [
     label: "ProofMesh Guard program",
     scenario: "PROGRAM",
     url: programEvidence.explorerUrl
+  },
+  {
+    kind: "Deploy",
+    label: "Program deployment transaction",
+    scenario: "PROGRAM",
+    url: programEvidence.deployUrl
   },
   ...scenarios.flatMap((scenario) => {
     const rows: LedgerRow[] = [

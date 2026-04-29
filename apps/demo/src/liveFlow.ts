@@ -56,7 +56,7 @@ interface GuardDecision {
   policyId: string;
 }
 
-export type DemoMode = "evidence" | "live";
+export type DemoMode = "evidence" | "ledger" | "live";
 
 export interface ModeOption {
   id: DemoMode;
@@ -96,6 +96,11 @@ export const modeOptions: readonly ModeOption[] = [
     id: "evidence",
     label: "Evidence Mode",
     summary: "Captured devnet evidence, no wallet required."
+  },
+  {
+    id: "ledger",
+    label: "Ledger / Verify",
+    summary: "Check permit PDAs, hashes, amounts, and evidence links."
   },
   {
     id: "live",

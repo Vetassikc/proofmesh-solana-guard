@@ -34,7 +34,8 @@ test("block scenario intentionally has no execute transaction", () => {
 });
 
 test("ledger rows include every judge evidence link", () => {
-  assert.equal(ledgerRows.length, 9);
+  assert.equal(ledgerRows.length, 10);
+  assert.equal(ledgerRows.filter((row) => row.scenario === "PROGRAM").length, 2);
   assert.equal(ledgerRows.filter((row) => row.scenario === "BLOCK").length, 2);
   assert.equal(ledgerRows.every((row) => row.url.includes("cluster=devnet")), true);
 });

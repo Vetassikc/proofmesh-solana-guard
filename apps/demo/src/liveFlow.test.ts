@@ -14,7 +14,8 @@ import {
 test("Evidence Mode remains the default demo mode", () => {
   assert.equal(modeOptions[0]?.id, "evidence");
   assert.equal(modeOptions[0]?.label, "Evidence Mode");
-  assert.equal(modeOptions[1]?.label, "Live Wallet Mode");
+  assert.equal(modeOptions[1]?.label, "Ledger / Verify");
+  assert.equal(modeOptions[2]?.label, "Live Wallet Mode");
 });
 
 test("Live Wallet Mode exposes the required stepper labels", () => {
