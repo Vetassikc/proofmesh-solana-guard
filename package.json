@@ -21,8 +21,8 @@
     "devnet:release": "pnpm build:scripts && node scripts/dist/devnet/run_guarded_payout.js release",
     "test:scripts": "pnpm build:scripts && node --test \"scripts/dist/devnet/*.test.js\"",
     "test:anchor": "anchor test",
-    "test": "pnpm --filter @proofmesh/guard-sdk test && pnpm test:scripts",
-    "typecheck": "pnpm --filter @proofmesh/guard-sdk typecheck && pnpm --filter @proofmesh/guard-sdk build && tsc -p tsconfig.scripts.json --noEmit"
+    "test": "pnpm --filter @proofmesh/guard-sdk test && pnpm test:scripts && pnpm --filter @proofmesh/demo test",
+    "typecheck": "pnpm --filter @proofmesh/guard-sdk typecheck && pnpm --filter @proofmesh/guard-sdk build && tsc -p tsconfig.scripts.json --noEmit && pnpm --filter @proofmesh/demo typecheck"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.31.1",
