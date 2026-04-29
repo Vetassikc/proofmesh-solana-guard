@@ -12,10 +12,16 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit"
   },
   "dependencies": {
+    "@solana/wallet-adapter-base": "^0.9.27",
+    "@solana/wallet-adapter-react": "^0.15.39",
+    "@solana/wallet-standard-wallet-adapter-react": "^1.1.4",
+    "@solana/web3.js": "^1.98.4",
     "@vitejs/plugin-react": "^5.0.4",
-    "vite": "^7.1.12",
+    "bs58": "^6.0.0",
+    "buffer": "^6.0.3",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "vite": "^7.1.12"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
