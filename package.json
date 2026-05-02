@@ -19,10 +19,12 @@
     "devnet:cap": "pnpm build:scripts && node scripts/dist/devnet/run_guarded_payout.js cap",
     "devnet:dry-run": "pnpm build:scripts && node scripts/dist/devnet/run_guarded_payout.js release --dry-run",
     "devnet:release": "pnpm build:scripts && node scripts/dist/devnet/run_guarded_payout.js release",
+    "example:integration": "pnpm --filter @proofmesh/node-integration-example test",
     "test:scripts": "pnpm build:scripts && node --test \"scripts/dist/devnet/*.test.js\"",
+    "test:examples": "pnpm --filter @proofmesh/node-integration-example test",
     "test:anchor": "anchor test",
-    "test": "pnpm --filter @proofmesh/guard-sdk test && pnpm test:scripts && pnpm --filter @proofmesh/demo test",
-    "typecheck": "pnpm --filter @proofmesh/guard-sdk typecheck && pnpm --filter @proofmesh/guard-sdk build && tsc -p tsconfig.scripts.json --noEmit && pnpm --filter @proofmesh/demo typecheck"
+    "test": "pnpm --filter @proofmesh/guard-sdk test && pnpm test:scripts && pnpm --filter @proofmesh/demo test && pnpm test:examples",
+    "typecheck": "pnpm --filter @proofmesh/guard-sdk typecheck && pnpm --filter @proofmesh/guard-sdk build && tsc -p tsconfig.scripts.json --noEmit && pnpm --filter @proofmesh/demo typecheck && pnpm --filter @proofmesh/node-integration-example typecheck"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.31.1",

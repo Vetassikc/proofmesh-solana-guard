@@ -1,0 +1,21 @@
+{
+  "name": "@proofmesh/node-integration-example",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local Node.js integration example for ProofMesh Guard SDK.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "pnpm build && node dist/index.js",
+    "test": "pnpm build && node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@proofmesh/guard-sdk": "workspace:*",
+    "@solana/web3.js": "^1.98.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "typescript": "^5.7.2"
+  }
+}

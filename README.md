@@ -33,6 +33,97 @@ The hackathon MVP is intentionally narrow:
 `HOLD` remains part of the SDK and data model, but it is not a primary judge
 scenario for the first demo.
 
+## Integrate ProofMesh Guard
+
+ProofMesh Guard is designed as a reusable Solana trust-permit primitive. A
+builder can run the SDK before an agent wallet, DAO treasury tool, or payment
+bot sends a risky payout.
+
+Install dependencies from this workspace:
+
+```bash
+pnpm install
+pnpm --filter @proofmesh/guard-sdk build
+```
+
+Use the local SDK package in another workspace package:
+
+```json
+{
+  "dependencies": {
+    "@proofmesh/guard-sdk": "workspace:*"
+  }
+}
+```
+
+Minimal flow:
+
+```ts
+import { PublicKey } from "@solana/web3.js";
+import {
+  DEFAULT_GUARD_POLICY,
+  buildProofBundle,
+  evaluatePayoutIntent,
+  guardScenarios,
+  issueTrustPermit,
+  verifyTrustPermit
+} from "@proofmesh/guard-sdk";
+
+const programId = "5LUyS5ZN4F4qK8xQy2RnABcoKAFFo4VuApLGKzyF4xjk";
+const scenario = guardScenarios.release;
+
+const intent = {
+  ...scenario.intent,
+  treasury: "agent-or-dao-treasury-public-key",
+  recipient: "recipient-public-key",
+  nonce: "your-unique-payout-nonce"
+};
+
+const bundle = buildProofBundle(intent, scenario.proofs, scenario.generatedAt);
+const decision = evaluatePayoutIntent(intent, bundle, DEFAULT_GUARD_POLICY);
+const permit = issueTrustPermit(intent, bundle, decision, {
+  issuer: "agent-or-policy-engine-id",
+  issuedAt: new Date().toISOString()
+});
+const verification = verifyTrustPermit(permit, intent, bundle);
+const [permitPda] = PublicKey.findProgramAddressSync(
+  [Buffer.from("permit"), Buffer.from(bundle.intentHash, "hex")],
+  new PublicKey(programId)
+);
+
+if (!verification.valid || decision.decision === "BLOCK") {
+  throw new Error("Do not execute this payout.");
+}
+
+console.log({
+  decision: decision.decision,
+  approvedAmountLamports: decision.approvedAmountLamports,
+  permitId: permit.permitId,
+  permitPda: permitPda.toBase58()
+});
+```
+
+Decision behavior:
+
+- `RELEASE`: issue the permit and execute the requested payout amount.
+- `CAP`: issue the permit and execute only the approved capped amount.
+- `BLOCK`: issue blocked evidence only; do not execute a payout.
+
+The Anchor program maps the SDK output to a permit PDA using
+`["permit", intentHash]`. The `issue_permit` instruction stores compact permit
+metadata on devnet. The `execute_payout` instruction moves native devnet SOL
+only for `RELEASE` and `CAP` permits that are unexpired and not already
+executed.
+
+Run the local integration example:
+
+```bash
+pnpm example:integration
+```
+
+For deployed devnet evidence flows after configuring a devnet wallet outside
+the repository, see [docs/DEVNET_RUNBOOK.md](docs/DEVNET_RUNBOOK.md).
+
 ## Judging Focus
 
 ProofMesh Guard is optimized for Colosseum Frontier judging criteria:
