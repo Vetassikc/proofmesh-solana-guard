@@ -1,7 +1,10 @@
-# Manual Wallet Smoke
+# Manual Wallet Smoke Evidence
 
-This checklist captures the founder-run manual devnet wallet smoke for
-ProofMesh Guard Live Wallet Mode. Record public devnet evidence only.
+This file records founder-reported manual devnet wallet smoke evidence for
+ProofMesh Guard Live Wallet Mode. It is separate from the static captured
+devnet evidence in [DEVNET_EVIDENCE.md](./DEVNET_EVIDENCE.md).
+
+This is manual smoke evidence, not an automated test result.
 
 Do not add private keys, seed phrases, `.env` files, screenshots with sensitive
 wallet data, mainnet wallet instructions, or local wallet file paths.
@@ -10,43 +13,56 @@ wallet data, mainnet wallet instructions, or local wallet file paths.
 
 - Demo mode: `Live Wallet Mode`
 - Network: Solana devnet only
+- Wallet extension: Phantom
+- Devnet wallet public address:
+  `HDpkp2eGQjJDoHDX1TU1GBet2BfJuzg5V1Umdqge2Pd1`
 - Program id: `5LUyS5ZN4F4qK8xQy2RnABcoKAFFo4VuApLGKzyF4xjk`
 - RPC: `https://api.devnet.solana.com`
-- Scenarios: `BLOCK`, `RELEASE`, and optional `CAP`
+- Reported errors: none
 
-## Procedure
+## Founder-Reported Results
 
-1. Open the demo app.
-2. Switch from `Evidence Mode` to `Live Wallet Mode`.
-3. Connect a browser extension wallet configured for devnet.
-4. Confirm the app displays the wallet public address and devnet SOL balance.
-5. Select `BLOCK`, build the permit, and issue the permit transaction.
-6. Confirm `BLOCK` has no execute transaction by design.
-7. Select `RELEASE`, build the permit, issue the permit transaction, and execute
-   the guarded payout transaction.
-8. Optionally select `CAP`, build the permit, issue the permit transaction, and
-   execute the capped payout transaction.
-9. Open every resulting Solana Explorer link and confirm it uses
-   `cluster=devnet`.
+### BLOCK
 
-## Results
+`BLOCK` was issued and intentionally had no execute transaction.
 
-- Wallet extension used: `<wallet-extension-name>`
-- Devnet wallet public address: `<public-address-only>`
-- BLOCK issue tx link: `<https://explorer.solana.com/tx/...?...cluster=devnet>`
-- BLOCK execute tx link: `None by design`
-- RELEASE issue tx link: `<https://explorer.solana.com/tx/...?...cluster=devnet>`
-- RELEASE execute tx link: `<https://explorer.solana.com/tx/...?...cluster=devnet>`
-- CAP issue tx link, if tested: `<https://explorer.solana.com/tx/...?...cluster=devnet>`
-- CAP execute tx link, if tested: `<https://explorer.solana.com/tx/...?...cluster=devnet>`
+- Issue transaction:
+  `5d7w5G81gGPqkLaYHqnxfGsmmKLZXU4sv14GkWVfct3NYvGmdseepqtq4cZnUuBPujd36t2wTQhNsBj8ubhtLBky`
+- Issue Explorer:
+  `https://explorer.solana.com/tx/5d7w5G81gGPqkLaYHqnxfGsmmKLZXU4sv14GkWVfct3NYvGmdseepqtq4cZnUuBPujd36t2wTQhNsBj8ubhtLBky?cluster=devnet`
+- Execute transaction: none by design
 
-## Acceptance Notes
+### RELEASE
 
-- `BLOCK` is successful when the permit is issued and no execute transaction is
-  created or offered.
-- `RELEASE` is successful when the permit is issued and the guarded payout
-  execute transaction confirms on devnet.
-- `CAP` is successful when the permit is issued and only the approved capped
-  amount is executed on devnet.
-- If wallet signing, RPC, or devnet balance fails, the app must remain
-  recoverable and the judge can return to `Evidence Mode`.
+`RELEASE` was issued and executed.
+
+- Issue transaction:
+  `2oCYuXQz6K8niyvaKn6GkhZktyZYPpCrvWNH9JmSJpoi5VHaS7pM3QMUZ7P3QKiV89tfHsUqQyvMyanawCv5NJQD`
+- Issue Explorer:
+  `https://explorer.solana.com/tx/2oCYuXQz6K8niyvaKn6GkhZktyZYPpCrvWNH9JmSJpoi5VHaS7pM3QMUZ7P3QKiV89tfHsUqQyvMyanawCv5NJQD?cluster=devnet`
+- Execute transaction:
+  `AB7c2B1ncfAVEMtAEYByPUTjbrLkEKBiY8p4K22KBaXPxq8mCcdF1PiD2pGwkQKUw5uDoaZwf6NjYqUqtCkjSGw`
+- Execute Explorer:
+  `https://explorer.solana.com/tx/AB7c2B1ncfAVEMtAEYByPUTjbrLkEKBiY8p4K22KBaXPxq8mCcdF1PiD2pGwkQKUw5uDoaZwf6NjYqUqtCkjSGw?cluster=devnet`
+
+### CAP
+
+`CAP` was issued and executed.
+
+- Issue transaction:
+  `2HQ7oYJog8AGHr3Aoa9RgkMgWb8MtHpARwETWwDbQbko7nHnxwMoTNZ2xzbx2QUBkniUtfKupL8hEeCkvTGUrFZW`
+- Issue Explorer:
+  `https://explorer.solana.com/tx/2HQ7oYJog8AGHr3Aoa9RgkMgWb8MtHpARwETWwDbQbko7nHnxwMoTNZ2xzbx2QUBkniUtfKupL8hEeCkvTGUrFZW?cluster=devnet`
+- Execute transaction:
+  `3ittvuAC67zWnfGm2xuaPtXPDd8s823Cx7o7bThnjQRu8qARKQNcCdUK588aELEAomCzL9He9HMpYBz57NDKnj1u`
+- Execute Explorer:
+  `https://explorer.solana.com/tx/3ittvuAC67zWnfGm2xuaPtXPDd8s823Cx7o7bThnjQRu8qARKQNcCdUK588aELEAomCzL9He9HMpYBz57NDKnj1u?cluster=devnet`
+
+## Smoke Conclusion
+
+Live Wallet Mode was manually verified on Solana devnet with Phantom:
+
+- `BLOCK`: permit issued; no execute transaction by design.
+- `RELEASE`: permit issued; guarded payout executed.
+- `CAP`: permit issued; capped guarded payout executed.
+- Errors: none reported.
