@@ -152,7 +152,7 @@ Primary SDK package:
 
 `@proofmesh/guard-sdk`
 
-Minimum SDK API:
+Current SDK API:
 
 ```ts
 createPayoutIntent(input): PayoutIntent
@@ -161,12 +161,13 @@ buildProofBundle(intent, proofs): ProofBundle
 evaluatePayoutIntent(intent, bundle, policy): GuardDecision
 issueTrustPermit(intent, bundle, decision): TrustPermit
 verifyTrustPermit(permit, intent, bundle): VerificationResult
-derivePermitPda(programId, intentHash): PublicKey
-buildIssuePermitInstruction(args): TransactionInstruction
-buildExecutePayoutInstruction(args): TransactionInstruction
 ```
 
-Planned demo/API routes:
+Current transaction construction lives in the demo and devnet script layers for
+the hackathon MVP. Browser-safe SDK transaction builders are a post-submission
+extension, not a dependency for the current judge demo.
+
+Planned hosted API routes:
 
 - `POST /api/guard/evaluate`
 - `GET /api/permits/:permitId`
@@ -299,15 +300,12 @@ transfers.
 - Cut SPL tokens, live proof providers, dashboards, escrow, and compliance
   claims before cutting the core permit path.
 
-## First Implementation Step
+## Current Submission State
 
-Create and commit scaffold/spec only:
-
-1. Move this approved spec into `docs/SPEC.md`.
-2. Create `docs/ARCHITECTURE.md`, `README.md`, root package scaffolding, and
-   empty workspace folders.
-3. Do not implement runtime logic in SDK, demo, or Anchor program until the
-   scaffold/spec commit exists or runtime implementation is explicitly approved.
+The scaffold/spec phase is complete. The current MVP includes SDK logic, Anchor
+permit accounts, guarded devnet SOL execution, captured devnet evidence, a
+judge demo, ledger verification, SDK integration docs, and manual Phantom
+devnet smoke evidence.
 
 ## Assumptions
 

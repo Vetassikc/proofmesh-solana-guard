@@ -140,7 +140,7 @@ or hosted audit storage. The Solana account stores the verifiable commitment.
 The SDK is the canonical integration layer. The hosted API is a convenience and
 commercial path, not the only way to use ProofMesh Guard.
 
-Minimum SDK surface:
+Current SDK surface:
 
 ```ts
 createPayoutIntent(input): PayoutIntent
@@ -149,12 +149,12 @@ buildProofBundle(intent, proofs): ProofBundle
 evaluatePayoutIntent(intent, bundle, policy): GuardDecision
 issueTrustPermit(intent, bundle, decision): TrustPermit
 verifyTrustPermit(permit, intent, bundle): VerificationResult
-derivePermitPda(programId, intentHash): PublicKey
-buildIssuePermitInstruction(args): TransactionInstruction
-buildExecutePayoutInstruction(args): TransactionInstruction
 ```
 
-Planned API routes for the demo app:
+Current transaction construction lives in the demo and devnet script layers.
+Browser-safe SDK transaction builders remain a post-submission extension.
+
+Planned hosted API routes:
 
 - `POST /api/guard/evaluate`
 - `GET /api/permits/:permitId`

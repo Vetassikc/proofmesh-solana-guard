@@ -154,17 +154,48 @@ Submission-ready project narrative and demo guidance live in:
 
 ## Local Setup
 
-Runtime setup will be added after the scaffold/spec commit. The planned
-workspace will use:
+The workspace contains:
 
 - `apps/demo` for the judge-facing web app
 - `packages/sdk` for the TypeScript SDK
 - `programs/proofmesh_guard` for the Solana program
-- `fixtures` for deterministic proof bundles
+- `examples/node-integration` for the runnable local SDK integration example
+- `scripts/devnet` for deterministic devnet scenario runners
 - `docs` for architecture, demo, and submission documentation
 
-No secrets, `.env` files, generated wallets, or private keys are required for
-the scaffold.
+Install and verify:
+
+```bash
+pnpm install
+pnpm typecheck
+pnpm test
+pnpm --filter @proofmesh/demo build
+pnpm example:integration
+```
+
+Run the demo locally:
+
+```bash
+pnpm --filter @proofmesh/demo dev
+```
+
+Preview a production build:
+
+```bash
+pnpm --filter @proofmesh/demo exec vite preview --host 127.0.0.1 --port 4175
+```
+
+Anchor verification, when the Solana and Anchor toolchains are installed:
+
+```bash
+anchor build
+anchor test
+cargo test --manifest-path programs/proofmesh_guard/Cargo.toml
+```
+
+No secrets, `.env` files, generated wallets, private keys, or live provider
+credentials are required for the default local SDK, demo, and documentation
+flows.
 
 ## Initial Users
 
