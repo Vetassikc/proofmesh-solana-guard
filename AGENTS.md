@@ -1,30 +1,31 @@
 # AGENTS.md
 
-Communicate with the user in Ukrainian unless asked otherwise.
-Keep code, comments, documentation, and commit messages in English.
+Спілкуйся з користувачем українською, якщо він не попросить інакше.
+Код, коментарі в коді, submission copy, product narrative, SDK examples і commit messages тримай англійською.
+Операційні інструкції в Markdown-файлах, тобто що робити, коли запускати, як перевіряти, як записувати демо, пиши українською.
 
-Do not read, print, commit, or propagate secrets, `.env` files, private keys, local credentials, or tool-provided secrets.
+Не читай, не друкуй, не коміть і не поширюй secrets, `.env` файли, private keys, local credentials або tool-provided secrets.
 
-This project is a Colosseum Frontier hackathon build for ProofMesh Guard.
-Optimize for a narrow, working, Solana-native demo before adding stretch features.
+Цей проект є Colosseum Frontier hackathon build для ProofMesh Guard.
+Оптимізуй під вузьке, робоче, Solana-native demo перед stretch features.
 
-Core project thesis:
+Core thesis проекту:
 `ProofMesh Guard issues trust permits for Solana agent payments and DAO treasury payouts.`
 
-Primary product object:
+Основний product object:
 `TrustPermit` - a verifiable artifact created before a risky payout, mapped to `RELEASE`, `CAP`, `HOLD`, or `BLOCK`, anchored on Solana devnet, and consumed by SDK/demo flows.
 
-Project constraints:
-- Do not reuse Arc/Circle positioning.
-- Do not build a generic AI agent platform.
-- Do not build a dashboard-only product.
-- Do not build a custody system, escrow system, full compliance/KYC workflow, or multi-chain flow.
-- Keep the MVP small enough for the May 11, 2026 Colosseum Frontier submission deadline.
-- Prefer deterministic, inspectable proof bundles for the core demo unless live providers are explicitly approved.
-- Treat Solana Actions/Blinks as a stretch feature after the core permit path works.
+Обмеження проекту:
+- Не використовуй Arc/Circle positioning.
+- Не будуй generic AI agent platform.
+- Не будуй dashboard-only product.
+- Не будуй custody system, escrow system, full compliance/KYC workflow або multi-chain flow.
+- Тримай MVP достатньо вузьким для May 11, 2026 Colosseum Frontier submission deadline.
+- Для core demo віддавай перевагу deterministic, inspectable proof bundles, якщо live providers не затверджені явно.
+- Solana Actions/Blinks вважай stretch feature після стабільного core permit path.
 
-Implementation preferences:
-- Prefer small, reversible changes with local verification.
-- Keep the repository structure clear: demo app, SDK, Solana program, fixtures, and docs.
-- Make the project look Solana-native from the first commit: PDA permit accounts, devnet anchoring, guarded payout path, TypeScript SDK, and explorer-verifiable evidence.
-- Before implementation, keep specs concise and focused on the hackathon judging criteria: functionality, Solana ecosystem impact, novelty, UX, Solana technology usage, open-source composability, and business plan.
+Правила implementation:
+- Роби невеликі, reversible changes з локальною перевіркою.
+- Тримай структуру repo зрозумілою: demo app, SDK, Solana program, fixtures, docs.
+- З першого екрану проект має виглядати Solana-native: PDA permit accounts, devnet anchoring, guarded payout path, TypeScript SDK, explorer-verifiable evidence.
+- Перед implementation тримай specs стислими і сфокусованими на hackathon judging criteria: functionality, Solana ecosystem impact, novelty, UX, Solana technology usage, open-source composability, business plan.

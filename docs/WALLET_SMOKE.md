@@ -4,10 +4,10 @@ This file records founder-reported manual devnet wallet smoke evidence for
 ProofMesh Guard Live Wallet Mode. It is separate from the static captured
 devnet evidence in [DEVNET_EVIDENCE.md](./DEVNET_EVIDENCE.md).
 
-This is manual smoke evidence, not an automated test result.
+Це manual smoke evidence, а не automated test result.
 
-Do not add private keys, seed phrases, `.env` files, screenshots with sensitive
-wallet data, mainnet wallet instructions, or local wallet file paths.
+Не додавай private keys, seed phrases, `.env` files, screenshots із sensitive
+wallet data, mainnet wallet instructions або local wallet file paths.
 
 ## Scope
 

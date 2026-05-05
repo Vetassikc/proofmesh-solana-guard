@@ -1,6 +1,7 @@
 # Submission Narrative
 
-This document keeps the Colosseum submission story concise and consistent.
+Цей документ тримає Colosseum submission story стислою і послідовною. Сам
+submission copy лишається англійською.
 
 ## One-Liner
 
@@ -78,17 +79,17 @@ The current MVP includes:
 - captured devnet evidence for program deployment and all three scenarios
 - founder-reported Phantom devnet wallet smoke evidence
 
-## Demo Path
+## Demo Path Для Submission
 
-The safest judge path does not require a wallet:
+Найбезпечніший judge path не потребує wallet:
 
-1. Open the demo.
-2. Keep `Evidence Mode` selected.
-3. Show `RELEASE`, `CAP`, and `BLOCK`.
-4. Switch to `Ledger / Verify`.
-5. Show `All checks pass`.
-6. Open one permit PDA and one transaction in Solana Explorer.
-7. Mention that `Live Wallet Mode` can run fresh devnet flows with Phantom.
+1. Відкрий demo.
+2. Залиш `Evidence Mode` selected.
+3. Покажи `RELEASE`, `CAP` і `BLOCK`.
+4. Перемкнись на `Ledger / Verify`.
+5. Покажи `All checks pass`.
+6. Відкрий один permit PDA і одну transaction у Solana Explorer.
+7. Згадай, що `Live Wallet Mode` може запускати fresh devnet flows з Phantom.
 
 The key message is simple: ProofMesh Guard does not just describe a policy. It
 anchors and verifies the decision before payout execution.
@@ -188,15 +189,15 @@ Current MVP intentionally does not include:
 These cuts keep the hackathon submission focused on a working Solana-native
 primitive.
 
-## Near-Term Roadmap
+## Найближчий Roadmap
 
-Before submission:
+Перед submission:
 
-- harden demo copy, empty states, and mobile layout
-- prepare screenshots and a short demo video
-- freeze scope before May 11, 2026
+- посилити demo copy, empty states і mobile layout
+- підготувати screenshots і коротке demo video
+- заморозити scope до May 11, 2026
 
-After submission:
+Після submission:
 
 - browser-safe transaction builders in the SDK
 - SPL token payout support

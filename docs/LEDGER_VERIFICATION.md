@@ -4,7 +4,7 @@ ProofMesh Guard includes a judge-facing `Ledger / Verify` view in the demo app.
 It is designed to prove that the captured devnet evidence is internally
 consistent and explorer-verifiable without requiring a wallet.
 
-## What The Demo Verifies
+## Що Перевіряє Demo
 
 The verification view checks:
 
@@ -23,15 +23,14 @@ The verification view checks:
   - `CAP`: approved amount is greater than zero and below requested amount
   - `BLOCK`: approved amount is zero
 
-## Manual Judge Flow
+## Ручний Judge Flow
 
-1. Open the demo app.
-2. Keep `Evidence Mode` as the default if no wallet is available.
-3. Switch to `Ledger / Verify`.
-4. Confirm the status reads `All checks pass`.
-5. Open the program, deploy, permit, issue, and execute links in Solana Explorer.
-6. Copy the JSON or Markdown evidence pack if a concise submission artifact is
-   needed.
+1. Відкрий demo app.
+2. Залиш `Evidence Mode` дефолтним, якщо wallet недоступний.
+3. Перемкнись на `Ledger / Verify`.
+4. Перевір, що status показує `All checks pass`.
+5. Відкрий program, deploy, permit, issue і execute links у Solana Explorer.
+6. Скопіюй JSON або Markdown evidence pack, якщо потрібен короткий submission artifact.
 
 `Live Wallet Mode` remains optional. It can run fresh devnet flows with an
 extension wallet, but the captured evidence and verification ledger tell the

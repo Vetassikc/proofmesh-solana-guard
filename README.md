@@ -33,20 +33,20 @@ The hackathon MVP is intentionally narrow:
 `HOLD` remains part of the SDK and data model, but it is not a primary judge
 scenario for the first demo.
 
-## Integrate ProofMesh Guard
+## Інтеграція ProofMesh Guard
 
 ProofMesh Guard is designed as a reusable Solana trust-permit primitive. A
 builder can run the SDK before an agent wallet, DAO treasury tool, or payment
 bot sends a risky payout.
 
-Install dependencies from this workspace:
+Встанови залежності з цього workspace:
 
 ```bash
 pnpm install
 pnpm --filter @proofmesh/guard-sdk build
 ```
 
-Use the local SDK package in another workspace package:
+Додай локальний SDK package в інший workspace package:
 
 ```json
 {
@@ -56,7 +56,7 @@ Use the local SDK package in another workspace package:
 }
 ```
 
-Minimal flow:
+Мінімальний flow:
 
 ```ts
 import { PublicKey } from "@solana/web3.js";
@@ -115,14 +115,14 @@ metadata on devnet. The `execute_payout` instruction moves native devnet SOL
 only for `RELEASE` and `CAP` permits that are unexpired and not already
 executed.
 
-Run the local integration example:
+Запусти локальний integration example:
 
 ```bash
 pnpm example:integration
 ```
 
-For deployed devnet evidence flows after configuring a devnet wallet outside
-the repository, see [docs/DEVNET_RUNBOOK.md](docs/DEVNET_RUNBOOK.md).
+Для deployed devnet evidence flows після налаштування devnet wallet поза
+репозиторієм дивись [docs/DEVNET_RUNBOOK.md](docs/DEVNET_RUNBOOK.md).
 
 ## Judging Focus
 
@@ -141,20 +141,22 @@ ProofMesh Guard is optimized for Colosseum Frontier judging criteria:
 
 ## Submission Package
 
-Submission-ready project narrative and demo guidance live in:
+Submission-ready narrative і demo guidance лежать тут:
 
-- [docs/SUBMISSION_NARRATIVE.md](docs/SUBMISSION_NARRATIVE.md) for the
-  one-liner, problem, solution, evidence, business path, and copy blocks
-- [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) for the 90-second video script,
-  live demo click path, fallback path, and judge Q&A
-- [docs/DEVNET_EVIDENCE.md](docs/DEVNET_EVIDENCE.md) for captured program and
-  scenario transactions
-- [docs/WALLET_SMOKE.md](docs/WALLET_SMOKE.md) for founder-reported Phantom
-  devnet smoke evidence
+- [docs/SUBMISSION_NARRATIVE.md](docs/SUBMISSION_NARRATIVE.md) - one-liner,
+  problem, solution, evidence, business path і copy blocks.
+- [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) - 90-second video script, live demo
+  click path, fallback path і judge Q&A.
+- [docs/DEVNET_EVIDENCE.md](docs/DEVNET_EVIDENCE.md) - captured program і
+  scenario transactions.
+- [docs/WALLET_SMOKE.md](docs/WALLET_SMOKE.md) - founder-reported Phantom
+  devnet smoke evidence.
+- [artifacts/submission](artifacts/submission) - screenshots і українські
+  інструкції з використання.
 
-## Local Setup
+## Локальний Запуск
 
-The workspace contains:
+Workspace містить:
 
 - `apps/demo` for the judge-facing web app
 - `packages/sdk` for the TypeScript SDK
@@ -163,7 +165,7 @@ The workspace contains:
 - `scripts/devnet` for deterministic devnet scenario runners
 - `docs` for architecture, demo, and submission documentation
 
-Install and verify:
+Встанови залежності і перевір проект:
 
 ```bash
 pnpm install
@@ -173,19 +175,19 @@ pnpm --filter @proofmesh/demo build
 pnpm example:integration
 ```
 
-Run the demo locally:
+Запусти демо локально:
 
 ```bash
 pnpm --filter @proofmesh/demo dev
 ```
 
-Preview a production build:
+Запусти preview production build:
 
 ```bash
 pnpm --filter @proofmesh/demo exec vite preview --host 127.0.0.1 --port 4175
 ```
 
-Anchor verification, when the Solana and Anchor toolchains are installed:
+Anchor verification, якщо Solana і Anchor toolchains встановлені:
 
 ```bash
 anchor build
@@ -193,9 +195,8 @@ anchor test
 cargo test --manifest-path programs/proofmesh_guard/Cargo.toml
 ```
 
-No secrets, `.env` files, generated wallets, private keys, or live provider
-credentials are required for the default local SDK, demo, and documentation
-flows.
+Для default local SDK, demo і documentation flows не потрібні secrets, `.env`
+файли, generated wallets, private keys або live provider credentials.
 
 ## Initial Users
 

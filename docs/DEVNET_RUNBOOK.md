@@ -1,12 +1,12 @@
 # ProofMesh Guard Devnet Runbook
 
-This runbook prepares the post-deploy devnet path for issuing and executing
-ProofMesh Guard permits from scripts. It does not require deployment during
-Day 5a.
+Цей runbook описує, як готувати post-deploy devnet path для issuing і
+executing ProofMesh Guard permits зі scripts. Product terms і command names
+лишай англійською.
 
-## Required Tool Versions
+## Версії Інструментів
 
-Use the same major toolchain as local verification:
+Використовуй той самий major toolchain, що й для local verification:
 
 - Node.js 24.x or a current Node.js version compatible with the repository
   scripts.
@@ -15,7 +15,7 @@ Use the same major toolchain as local verification:
 - Solana CLI compatible with Anchor 0.31.1.
 - Anchor CLI 0.31.1, preferably via AVM.
 
-Check versions:
+Перевір versions:
 
 ```bash
 node --version
@@ -25,12 +25,12 @@ solana --version
 anchor --version
 ```
 
-## Wallet And Keypair Requirements
+## Вимоги До Wallet І Keypair
 
-Use a dedicated devnet wallet. Do not use a mainnet wallet for the hackathon
-demo.
+Використовуй dedicated devnet wallet. Не використовуй mainnet wallet для
+hackathon demo.
 
-The wallet path is supplied through `ANCHOR_WALLET`:
+Wallet path передається через `ANCHOR_WALLET`:
 
 ```bash
 export ANCHOR_PROVIDER_URL=https://api.devnet.solana.com
@@ -38,10 +38,10 @@ export ANCHOR_WALLET=/absolute/path/to/devnet-wallet.json
 export PROOFMESH_GUARD_PROGRAM_ID=<program-id-after-deploy>
 ```
 
-The script reads the wallet to sign the issue permit transaction and the
-guarded payout transaction. It never prints the private key.
+Script читає wallet, щоб підписати issue permit transaction і guarded payout
+transaction. Він не друкує private key.
 
-Do not commit:
+Не коміть:
 
 - wallet keypairs
 - generated program keypairs
@@ -49,48 +49,48 @@ Do not commit:
 - validator ledgers
 - local credentials
 
-The repository ignores `.env`, `.env.*`, `.anchor/`, and `target/`.
-Only `.env.example` is allowed.
+Repository ignores `.env`, `.env.*`, `.anchor/` і `target/`.
+Дозволений тільки `.env.example`.
 
-## Fund A Devnet Wallet
+## Як Поповнити Devnet Wallet
 
-Set the devnet cluster and airdrop SOL:
+Встанови devnet cluster і зроби airdrop SOL:
 
 ```bash
 solana config set --url https://api.devnet.solana.com
 solana airdrop 2 "$(<command-that-prints-your-wallet-pubkey>)"
 ```
 
-If your wallet is the Solana CLI keypair, check it with:
+Якщо твій wallet це Solana CLI keypair, перевір його так:
 
 ```bash
 solana address --keypair "$ANCHOR_WALLET"
 solana balance --keypair "$ANCHOR_WALLET"
 ```
 
-For repeated demos, keep enough devnet SOL for:
+Для repeated demos тримай достатньо devnet SOL для:
 
 - permit account rent
 - transaction fees
 - release/cap payout lamports
 
-## Program Id Sync Before Deployment
+## Синхронізація Program Id Перед Deployment
 
-Before any devnet deployment, the program id must be synchronized across:
+Перед будь-яким devnet deployment program id має бути синхронізований між:
 
 - `programs/proofmesh_guard/src/lib.rs` via `declare_id!(...)`
 - `Anchor.toml` under the devnet program section
 - `PROOFMESH_GUARD_PROGRAM_ID`
 
-The Day 5a scripts require `PROOFMESH_GUARD_PROGRAM_ID` and fail clearly when it
-is missing.
+Scripts вимагають `PROOFMESH_GUARD_PROGRAM_ID` і зрозуміло падають, якщо він
+відсутній.
 
-Do not commit generated keypair files. If a generated program keypair is needed
-for deployment, keep it outside the repository or inside ignored paths.
+Не коміть generated keypair files. Якщо generated program keypair потрібен для
+deployment, тримай його поза repository або всередині ignored paths.
 
-## Post-Deploy Script Flow
+## Post-Deploy Flow Для Scripts
 
-After the program has been deployed and the IDL has been built, run:
+Після program deployment і IDL build запусти:
 
 ```bash
 pnpm devnet:dry-run
@@ -99,13 +99,13 @@ pnpm devnet:cap
 pnpm devnet:block
 ```
 
-The scripts use deterministic SDK fixture scenarios where possible:
+Scripts використовують deterministic SDK fixture scenarios, де це можливо:
 
 - `release` issues a `RELEASE` permit and executes the approved payout.
 - `cap` issues a `CAP` permit and executes only the capped amount.
 - `block` issues a `BLOCK` permit and intentionally skips payout execution.
 
-Use `--dry-run` to derive the plan and print evidence without sending
+Використовуй `--dry-run`, щоб вивести plan і evidence без sending
 transactions:
 
 ```bash
@@ -114,16 +114,16 @@ node scripts/dist/devnet/run_guarded_payout.js release --dry-run
 node scripts/dist/devnet/run_guarded_payout.js --scenario cap --dry-run
 ```
 
-Use `--run-id <id>` when you need a stable, unique permit PDA for a specific
-demo rehearsal:
+Використовуй `--run-id <id>`, коли потрібен stable, unique permit PDA для
+конкретної demo rehearsal:
 
 ```bash
 node scripts/dist/devnet/run_guarded_payout.js release --run-id judge-rehearsal-001
 ```
 
-## Expected Evidence Output
+## Очікуваний Evidence Output
 
-Each run prints structured JSON:
+Кожен run друкує structured JSON:
 
 ```json
 {
@@ -143,9 +143,9 @@ Each run prints structured JSON:
 }
 ```
 
-For `block`, `executeSignature` and `explorerUrls.execute` are `null`.
+Для `block` поля `executeSignature` і `explorerUrls.execute` мають бути `null`.
 
-This evidence is what the demo ledger should eventually surface to judges:
+Це evidence, яке demo ledger має показувати judges:
 
 - permit PDA
 - issue transaction signature

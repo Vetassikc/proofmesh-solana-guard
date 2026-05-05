@@ -65,7 +65,7 @@ console.log({
 });
 ```
 
-Run the included local example:
+Запусти included local example:
 
 ```bash
 pnpm example:integration
