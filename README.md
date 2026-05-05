@@ -139,6 +139,19 @@ ProofMesh Guard is optimized for Colosseum Frontier judging criteria:
 - business plan: free SDK plus paid hosted Guard API for teams needing higher
   rate limits, managed proof bundles, audit retention, and monitoring
 
+## Submission Package
+
+Submission-ready project narrative and demo guidance live in:
+
+- [docs/SUBMISSION_NARRATIVE.md](docs/SUBMISSION_NARRATIVE.md) for the
+  one-liner, problem, solution, evidence, business path, and copy blocks
+- [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) for the 90-second video script,
+  live demo click path, fallback path, and judge Q&A
+- [docs/DEVNET_EVIDENCE.md](docs/DEVNET_EVIDENCE.md) for captured program and
+  scenario transactions
+- [docs/WALLET_SMOKE.md](docs/WALLET_SMOKE.md) for founder-reported Phantom
+  devnet smoke evidence
+
 ## Local Setup
 
 Runtime setup will be added after the scaffold/spec commit. The planned
