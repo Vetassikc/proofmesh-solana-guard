@@ -13,6 +13,7 @@ import {
   flowSteps,
   formatLamports,
   getScenario,
+  getScenarioPresentation,
   ledgerRows,
   programEvidence,
   scenarios,
@@ -74,6 +75,7 @@ function ScenarioButton({
   onSelect: (id: ScenarioId) => void;
 }) {
   const scenario = getScenario(id);
+  const presentation = getScenarioPresentation(scenario);
 
   return (
     <button
@@ -85,7 +87,8 @@ function ScenarioButton({
       <span className={`decision-dot decision-${scenario.decision.toLowerCase()}`} />
       <span>
         <strong>{scenario.decision}</strong>
-        <small>{scenario.label}</small>
+        <small>{presentation.impactLabel}</small>
+        <em>{scenario.label}</em>
       </span>
     </button>
   );
@@ -143,6 +146,7 @@ function EvidenceMode({
   onSelect: (id: ScenarioId) => void;
 }) {
   const scenario = getScenario(selectedId);
+  const presentation = getScenarioPresentation(scenario);
   const activeStep = useMemo(() => {
     if (scenario.decision === "BLOCK") {
       return 5;
@@ -157,6 +161,7 @@ function EvidenceMode({
         {flowSteps.map((step, index) => (
           <div
             className={index + 1 <= activeStep ? "flow-step active" : "flow-step"}
+            aria-current={index + 1 === activeStep ? "step" : undefined}
             key={step}
           >
             <span>{index + 1}</span>
@@ -177,18 +182,22 @@ function EvidenceMode({
           ))}
         </nav>
 
-        <section className="scenario-detail" aria-live="polite">
+        <section
+          className={`scenario-detail scenario-${scenario.decision.toLowerCase()}`}
+          aria-live="polite"
+        >
           <div className="decision-header">
             <div>
               <p className="eyebrow">{scenario.label}</p>
               <h2>{scenario.decision}</h2>
             </div>
             <span className={`decision-pill decision-${scenario.decision.toLowerCase()}`}>
-              {scenario.decision === "BLOCK" ? "No payout" : "Executed"}
+              {presentation.statusLabel}
             </span>
           </div>
 
           <p className="summary">{scenario.summary}</p>
+          <p className="impact-line">{presentation.impactLabel}</p>
 
           <div className="amounts">
             <div>
@@ -295,9 +304,12 @@ function LedgerVerifyMode() {
             on Solana devnet.
           </p>
         </div>
-        <span className={verification.ok ? "verification-pill pass" : "verification-pill fail"}>
-          {verification.ok ? "All checks pass" : "Check failure"}
-        </span>
+        <div className="verification-summary">
+          <span className={verification.ok ? "verification-pill pass" : "verification-pill fail"}>
+            {verification.ok ? "All checks pass" : "Check failure"}
+          </span>
+          <small>Program + 3 scenarios verified</small>
+        </div>
       </div>
 
       <section className="program-proof">
@@ -713,16 +725,38 @@ function AppContent() {
     <main>
       <section className="workspace">
         <header className="topline">
-          <div>
-            <p className="eyebrow">Solana devnet primitive</p>
+          <div className="hero-copy">
+            <div className="brand-lockup">
+              <span className="brand-mark" aria-hidden="true">
+                <span />
+              </span>
+              <p className="eyebrow">Solana devnet primitive</p>
+            </div>
             <h1>ProofMesh Guard</h1>
             <p className="tagline">
               Trust permits before Solana agent payments move funds.
             </p>
+            <div className="proof-strip" aria-label="Submission proof points">
+              <div>
+                <span>Permit object</span>
+                <strong>TrustPermit PDA</strong>
+              </div>
+              <div>
+                <span>Execution path</span>
+                <strong>Guarded SOL payout</strong>
+              </div>
+              <div>
+                <span>Judge evidence</span>
+                <strong>All checks pass</strong>
+              </div>
+            </div>
           </div>
-          <ExternalLink href={programEvidence.explorerUrl}>
-            Program {shortHash(programEvidence.programId)}
-          </ExternalLink>
+          <div className="program-link">
+            <span>Program</span>
+            <ExternalLink href={programEvidence.explorerUrl}>
+              {shortHash(programEvidence.programId)}
+            </ExternalLink>
+          </div>
         </header>
 
         <ModeSwitch mode={mode} onSelect={setMode} />

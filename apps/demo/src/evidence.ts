@@ -39,6 +39,11 @@ export interface LedgerRow {
   url: string;
 }
 
+export interface ScenarioPresentation {
+  impactLabel: string;
+  statusLabel: string;
+}
+
 export const flowSteps = [
   "Payout Intent",
   "Proof Bundle",
@@ -190,6 +195,28 @@ export function getScenario(id: ScenarioId): ScenarioEvidence {
   }
 
   return scenarios.find((scenario) => scenario.id === id) ?? fallback;
+}
+
+export function getScenarioPresentation(
+  scenario: ScenarioEvidence
+): ScenarioPresentation {
+  switch (scenario.decision) {
+    case "RELEASE":
+      return {
+        impactLabel: "Release full payout",
+        statusLabel: "Executed"
+      };
+    case "CAP":
+      return {
+        impactLabel: "Cap to policy limit",
+        statusLabel: "Capped execution"
+      };
+    case "BLOCK":
+      return {
+        impactLabel: "Stop payout before funds move",
+        statusLabel: "Blocked"
+      };
+  }
 }
 
 export function formatLamports(lamports: string): string {

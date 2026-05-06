@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   flowSteps,
   getScenario,
+  getScenarioPresentation,
   ledgerRows,
   programEvidence,
   scenarios
@@ -49,4 +50,19 @@ test("flow copy keeps the required product path intact", () => {
     "Solana Evidence",
     "Payout Result"
   ]);
+});
+
+test("scenario presentation makes every decision outcome obvious", () => {
+  assert.deepEqual(
+    scenarios.map((scenario) => [
+      scenario.id,
+      getScenarioPresentation(scenario).statusLabel,
+      getScenarioPresentation(scenario).impactLabel
+    ]),
+    [
+      ["release", "Executed", "Release full payout"],
+      ["cap", "Capped execution", "Cap to policy limit"],
+      ["block", "Blocked", "Stop payout before funds move"]
+    ]
+  );
 });
