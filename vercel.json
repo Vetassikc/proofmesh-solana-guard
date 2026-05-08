@@ -1,0 +1,11 @@
+{
+  "buildCommand": "pnpm --filter @proofmesh/demo build",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "outputDirectory": "apps/demo/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
