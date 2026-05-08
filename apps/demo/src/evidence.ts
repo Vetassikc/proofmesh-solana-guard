@@ -44,6 +44,16 @@ export interface ScenarioPresentation {
   statusLabel: string;
 }
 
+export type ProofKind = "recipient_identity" | "wallet_risk" | "invoice_integrity";
+export type ProofStatus = "PASS" | "FAIL";
+
+export interface ProofCard {
+  kind: ProofKind;
+  label: string;
+  status: ProofStatus;
+  observation: string;
+}
+
 export const flowSteps = [
   "Payout Intent",
   "Proof Bundle",
@@ -217,6 +227,34 @@ export function getScenarioPresentation(
         statusLabel: "Blocked"
       };
   }
+}
+
+const proofLabels: Record<ProofKind, string> = {
+  recipient_identity: "Recipient Identity",
+  wallet_risk: "Wallet Risk",
+  invoice_integrity: "Invoice Integrity"
+};
+
+const scenarioProofs: Record<ScenarioId, readonly ProofCard[]> = {
+  release: [
+    { kind: "recipient_identity", label: proofLabels.recipient_identity, status: "PASS", observation: "Recipient profile matches payout metadata" },
+    { kind: "wallet_risk", label: proofLabels.wallet_risk, status: "PASS", observation: "Wallet risk is below policy threshold" },
+    { kind: "invoice_integrity", label: proofLabels.invoice_integrity, status: "PASS", observation: "Invoice and vendor metadata are consistent" }
+  ],
+  cap: [
+    { kind: "recipient_identity", label: proofLabels.recipient_identity, status: "PASS", observation: "Recipient profile matches payout metadata" },
+    { kind: "wallet_risk", label: proofLabels.wallet_risk, status: "PASS", observation: "Wallet risk is below policy threshold" },
+    { kind: "invoice_integrity", label: proofLabels.invoice_integrity, status: "PASS", observation: "Invoice and vendor metadata are consistent" }
+  ],
+  block: [
+    { kind: "recipient_identity", label: proofLabels.recipient_identity, status: "PASS", observation: "Recipient profile matches payout metadata" },
+    { kind: "wallet_risk", label: proofLabels.wallet_risk, status: "FAIL", observation: "Wallet risk fails policy threshold" },
+    { kind: "invoice_integrity", label: proofLabels.invoice_integrity, status: "PASS", observation: "Invoice and vendor metadata are consistent" }
+  ]
+};
+
+export function getScenarioProofs(id: ScenarioId): readonly ProofCard[] {
+  return scenarioProofs[id];
 }
 
 export function formatLamports(lamports: string): string {

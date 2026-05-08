@@ -14,10 +14,12 @@ import {
   formatLamports,
   getScenario,
   getScenarioPresentation,
+  getScenarioProofs,
   ledgerRows,
   programEvidence,
   scenarios,
   shortHash,
+  type ProofCard,
   type ScenarioId
 } from "./evidence";
 import {
@@ -113,6 +115,30 @@ function EvidenceRow({
   );
 }
 
+function ProofInspector({ proofs }: { proofs: readonly ProofCard[] }) {
+  return (
+    <div className="proof-inspector">
+      <p className="eyebrow">Proof bundle</p>
+      <div className="proof-cards">
+        {proofs.map((proof) => (
+          <div
+            className={`proof-card proof-${proof.status.toLowerCase()}`}
+            key={proof.kind}
+          >
+            <div className="proof-card-header">
+              <strong>{proof.label}</strong>
+              <span className={`proof-badge proof-badge-${proof.status.toLowerCase()}`}>
+                {proof.status}
+              </span>
+            </div>
+            <p>{proof.observation}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ModeSwitch({
   mode,
   onSelect
@@ -155,14 +181,21 @@ function EvidenceMode({
     return 6;
   }, [scenario.decision]);
 
+  const [flowKey, setFlowKey] = useState(0);
+
+  useEffect(() => {
+    setFlowKey((k) => k + 1);
+  }, [selectedId]);
+
   return (
     <>
-      <section aria-label="ProofMesh Guard flow" className="flow-rail">
+      <section aria-label="ProofMesh Guard flow" className="flow-rail" key={flowKey}>
         {flowSteps.map((step, index) => (
           <div
-            className={index + 1 <= activeStep ? "flow-step active" : "flow-step"}
+            className={`flow-step ${index + 1 <= activeStep ? "active" : ""} flow-step-animate`}
             aria-current={index + 1 === activeStep ? "step" : undefined}
             key={step}
+            style={{ "--step-index": index } as React.CSSProperties}
           >
             <span>{index + 1}</span>
             <strong>{step}</strong>
@@ -199,14 +232,23 @@ function EvidenceMode({
           <p className="summary">{scenario.summary}</p>
           <p className="impact-line">{presentation.impactLabel}</p>
 
-          <div className="amounts">
+          <ProofInspector proofs={getScenarioProofs(selectedId)} />
+
+          <div className={`amounts amounts-${scenario.decision.toLowerCase()}`}>
             <div>
               <span>Requested</span>
-              <strong>{formatLamports(scenario.requestedAmountLamports)}</strong>
+              <strong className={scenario.decision !== "RELEASE" ? "amount-struck" : ""}>
+                {formatLamports(scenario.requestedAmountLamports)}
+              </strong>
+            </div>
+            <div className="amount-arrow">
+              {scenario.decision === "RELEASE" ? "→" : "↓"}
             </div>
             <div>
               <span>Approved</span>
-              <strong>{formatLamports(scenario.approvedAmountLamports)}</strong>
+              <strong className={`amount-approved amount-approved-${scenario.decision.toLowerCase()}`}>
+                {formatLamports(scenario.approvedAmountLamports)}
+              </strong>
             </div>
           </div>
 
@@ -409,6 +451,27 @@ function LedgerVerifyMode() {
   );
 }
 
+function friendlyError(caught: unknown, fallback: string): string {
+  if (!(caught instanceof Error)) return fallback;
+  const msg = caught.message.toLowerCase();
+  if (msg.includes("user rejected") || msg.includes("user cancelled")) {
+    return "Transaction cancelled by user.";
+  }
+  if (msg.includes("insufficient") || msg.includes("not enough")) {
+    return "Insufficient devnet SOL. Request an airdrop and try again.";
+  }
+  if (msg.includes("blockhash") || msg.includes("expired")) {
+    return "Transaction expired. Please try again.";
+  }
+  if (msg.includes("network") || msg.includes("fetch") || msg.includes("econnrefused")) {
+    return "Cannot reach Solana devnet RPC. Check your connection.";
+  }
+  if (msg.includes("already in use") || msg.includes("already been processed")) {
+    return "Permit already exists on-chain. Switch to a new scenario.";
+  }
+  return caught.message;
+}
+
 function LiveWalletMode({ selectedId }: { selectedId: ScenarioId }) {
   const { connection } = useConnection();
   const {
@@ -429,6 +492,7 @@ function LiveWalletMode({ selectedId }: { selectedId: ScenarioId }) {
   const [executeSignature, setExecuteSignature] = useState<string | null>(null);
   const [status, setStatus] = useState("Connect a devnet wallet to start.");
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const command = getLiveScenarioCommand(selectedId);
   const requiredSol = selectedId === "block" ? 0.05 : 1.55;
   const insufficientBalance = connected && balance !== null && balance < requiredSol;
@@ -501,7 +565,7 @@ function LiveWalletMode({ selectedId }: { selectedId: ScenarioId }) {
       setError(null);
       setStatus("Permit built locally. Issue transaction is ready for wallet signing.");
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to build permit.");
+      setError(friendlyError(caught, "Unable to build permit."));
     }
   }
 
@@ -534,6 +598,7 @@ function LiveWalletMode({ selectedId }: { selectedId: ScenarioId }) {
 
     try {
       setError(null);
+      setIsLoading(true);
       setStatus("Waiting for wallet signature to issue permit...");
       const signature = await sendAndConfirm(buildIssuePermitTransaction(plan));
       setIssueSignature(signature);
@@ -543,8 +608,10 @@ function LiveWalletMode({ selectedId }: { selectedId: ScenarioId }) {
           : "BLOCK permit issued. No execute transaction by design."
       );
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Issue transaction failed.");
+      setError(friendlyError(caught, "Issue transaction failed."));
       setStatus("Issue transaction did not complete.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -556,13 +623,16 @@ function LiveWalletMode({ selectedId }: { selectedId: ScenarioId }) {
 
     try {
       setError(null);
+      setIsLoading(true);
       setStatus("Waiting for wallet signature to execute payout...");
       const signature = await sendAndConfirm(buildExecutePayoutTransaction(plan));
       setExecuteSignature(signature);
       setStatus("Payout execution confirmed on devnet.");
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Execute transaction failed.");
+      setError(friendlyError(caught, "Execute transaction failed."));
       setStatus("Execute transaction did not complete.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -643,7 +713,7 @@ function LiveWalletMode({ selectedId }: { selectedId: ScenarioId }) {
         <div className="live-actions">
           <button
             className="secondary-action"
-            disabled={!connected || insufficientBalance}
+            disabled={!connected || insufficientBalance || isLoading}
             onClick={() => void handleBuild()}
             type="button"
           >
@@ -651,7 +721,7 @@ function LiveWalletMode({ selectedId }: { selectedId: ScenarioId }) {
           </button>
           <button
             className="primary-action"
-            disabled={!plan || Boolean(issueSignature) || insufficientBalance}
+            disabled={!plan || Boolean(issueSignature) || insufficientBalance || isLoading}
             onClick={() => void handleIssue()}
             type="button"
           >
@@ -664,7 +734,8 @@ function LiveWalletMode({ selectedId }: { selectedId: ScenarioId }) {
               !issueSignature ||
               !plan.shouldExecute ||
               Boolean(executeSignature) ||
-              insufficientBalance
+              insufficientBalance ||
+              isLoading
             }
             onClick={() => void handleExecute()}
             type="button"
@@ -674,7 +745,10 @@ function LiveWalletMode({ selectedId }: { selectedId: ScenarioId }) {
         </div>
       </div>
 
-      <p className={error ? "status error" : "status"}>{error ?? status}</p>
+      <p className={error ? "status error" : isLoading ? "status loading" : "status"}>
+        {isLoading && <span className="spinner" aria-hidden="true" />}
+        {error ?? status}
+      </p>
 
       {plan ? (
         <dl className="evidence-list live-evidence">
@@ -801,6 +875,39 @@ function AppContent() {
               <em>{row.label}</em>
             </a>
           ))}
+        </div>
+      </section>
+
+      <section className="builders-section">
+        <div className="section-heading">
+          <p className="eyebrow">Open-source SDK</p>
+          <h2>Built for builders</h2>
+          <p className="tagline">
+            Integrate the trust permit step before your payout moves funds.
+          </p>
+        </div>
+        <div className="builder-cards">
+          <div className="builder-card">
+            <strong>Agent Wallet</strong>
+            <p>
+              An autonomous agent checks a permit before signing a SOL transfer.
+              RELEASE executes, CAP limits, BLOCK stops.
+            </p>
+          </div>
+          <div className="builder-card">
+            <strong>DAO Treasury</strong>
+            <p>
+              A treasury bot evaluates a proposal payout against policy. The
+              permit PDA anchors the decision before funds leave.
+            </p>
+          </div>
+          <div className="builder-card">
+            <strong>Payment Bot</strong>
+            <p>
+              A batch payment runner verifies each payout intent. Only permitted
+              transfers execute; risky payouts are blocked with evidence.
+            </p>
+          </div>
         </div>
       </section>
     </main>

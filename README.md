@@ -124,6 +124,36 @@ pnpm example:integration
 Для deployed devnet evidence flows після налаштування devnet wallet поза
 репозиторієм дивись [docs/DEVNET_RUNBOOK.md](docs/DEVNET_RUNBOOK.md).
 
+## Why TrustPermit
+
+Existing Solana safety patterns solve adjacent problems. TrustPermit fills the
+gap between approval coordination and payout execution:
+
+| Capability | TrustPermit | Multisig | Governance vote | Risk score API |
+|------------|-------------|----------|-----------------|----------------|
+| On-chain composable artifact | ✅ PDA | ❌ | ❌ | ❌ |
+| Inspectable proof bundle | ✅ | ❌ | ❌ | ⚠️ Opaque |
+| Automated (no human signer) | ✅ | ❌ | ❌ | ✅ |
+| RELEASE / CAP / BLOCK gating | ✅ | ⚠️ Approve only | ⚠️ Approve only | ❌ Advisory |
+| Blocked evidence anchoring | ✅ | ❌ | ❌ | ❌ |
+
+A multisig asks "did enough people approve?" A governance vote asks "did the
+community approve?" A risk API asks "is this risky?" and returns a score.
+
+ProofMesh Guard asks a different question: **can this payout produce a
+verifiable trust permit before funds move?** The permit is not a score or a
+vote. It is an inspectable, composable artifact that binds intent, proofs,
+decision, and amounts into a single on-chain object that another Solana program
+can verify.
+
+### Cross-Program Composability
+
+Another Solana program can read the permit PDA account to check whether a
+valid, unexpired, non-blocked permit exists before executing its own payout
+logic. This makes the trust permit a composable building block: a lending
+protocol, agent framework, or DAO tool can require a ProofMesh Guard permit as
+a precondition for any risky capital movement.
+
 ## Judging Focus
 
 ProofMesh Guard is optimized for Colosseum Frontier judging criteria:
@@ -131,13 +161,12 @@ ProofMesh Guard is optimized for Colosseum Frontier judging criteria:
 - functionality: a working permit path, not a static dashboard
 - Solana ecosystem impact: a reusable payout guard primitive for agents and DAO
   treasuries
-- novelty: trust permits before autonomous payments
+- novelty: trust permits before autonomous payments, not scores or votes
 - UX: judges should understand the product in 30 seconds
 - Solana technology usage: PDA permit accounts, devnet anchoring, guarded payout
   execution, and explorer-verifiable evidence
 - open-source composability: SDK-first interfaces and inspectable fixtures
-- business plan: free SDK plus paid hosted Guard API for teams needing higher
-  rate limits, managed proof bundles, audit retention, and monitoring
+- business plan: free SDK, Pro tier at $99/mo, Enterprise custom pricing
 
 ## Submission Package
 
@@ -162,6 +191,8 @@ Workspace містить:
 - `packages/sdk` for the TypeScript SDK
 - `programs/proofmesh_guard` for the Solana program
 - `examples/node-integration` for the runnable local SDK integration example
+- `examples/dao-treasury-bot` for the DAO treasury bot integration example
+- `artifacts/idl` for the Anchor IDL artifact
 - `scripts/devnet` for deterministic devnet scenario runners
 - `docs` for architecture, demo, and submission documentation
 
@@ -173,6 +204,7 @@ pnpm typecheck
 pnpm test
 pnpm --filter @proofmesh/demo build
 pnpm example:integration
+pnpm example:dao-bot
 ```
 
 Запусти демо локально:

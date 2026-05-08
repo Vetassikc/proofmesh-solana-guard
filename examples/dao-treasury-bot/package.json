@@ -1,0 +1,16 @@
+{
+  "name": "@proofmesh/dao-treasury-bot-example",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DAO Treasury Bot integration example for ProofMesh Guard.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "tsc -p tsconfig.json && node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@proofmesh/guard-sdk": "workspace:*",
+    "@solana/web3.js": "^1.98.0"
+  }
+}

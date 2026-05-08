@@ -1,0 +1,343 @@
+{
+  "address": "5LUyS5ZN4F4qK8xQy2RnABcoKAFFo4VuApLGKzyF4xjk",
+  "metadata": {
+    "name": "proofmesh_guard",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "ProofMesh Guard Anchor program for trust permit accounts."
+  },
+  "instructions": [
+    {
+      "name": "execute_payout",
+      "discriminator": [
+        12,
+        35,
+        52,
+        7,
+        95,
+        19,
+        169,
+        21
+      ],
+      "accounts": [
+        {
+          "name": "permit",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  101,
+                  114,
+                  109,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "permit.intent_hash",
+                "account": "Permit"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "issue_permit",
+      "discriminator": [
+        68,
+        63,
+        134,
+        74,
+        231,
+        77,
+        204,
+        24
+      ],
+      "accounts": [
+        {
+          "name": "permit",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  101,
+                  114,
+                  109,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "args.intent_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "issuer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "IssuePermitArgs"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Permit",
+      "discriminator": [
+        219,
+        195,
+        186,
+        174,
+        197,
+        232,
+        83,
+        160
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidBlockAmount",
+      "msg": "BLOCK permits must approve zero lamports"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidCapAmount",
+      "msg": "CAP permits must approve less than the requested amount"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidReleaseAmount",
+      "msg": "RELEASE permits must approve the requested amount"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidHoldAmount",
+      "msg": "HOLD permits must approve zero lamports"
+    },
+    {
+      "code": 6004,
+      "name": "PermitDecisionCannotExecute",
+      "msg": "Only RELEASE and CAP permits can execute"
+    },
+    {
+      "code": 6005,
+      "name": "TreasuryMismatch",
+      "msg": "Treasury account does not match permit"
+    },
+    {
+      "code": 6006,
+      "name": "RecipientMismatch",
+      "msg": "Recipient account does not match permit"
+    },
+    {
+      "code": 6007,
+      "name": "PermitExpired",
+      "msg": "Permit is expired"
+    },
+    {
+      "code": 6008,
+      "name": "PermitAlreadyExecuted",
+      "msg": "Permit has already been executed"
+    }
+  ],
+  "types": [
+    {
+      "name": "ExecutionStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "NotExecuted"
+          },
+          {
+            "name": "Executed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GuardDecision",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Release"
+          },
+          {
+            "name": "Cap"
+          },
+          {
+            "name": "Hold"
+          },
+          {
+            "name": "Block"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IssuePermitArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "intent_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "proof_root",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "decision",
+            "type": {
+              "defined": {
+                "name": "GuardDecision"
+              }
+            }
+          },
+          {
+            "name": "requested_amount_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "approved_amount_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "expires_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Permit",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "intent_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "proof_root",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "decision",
+            "type": {
+              "defined": {
+                "name": "GuardDecision"
+              }
+            }
+          },
+          {
+            "name": "requested_amount_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "approved_amount_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "issuer",
+            "type": "pubkey"
+          },
+          {
+            "name": "expires_at",
+            "type": "i64"
+          },
+          {
+            "name": "execution_status",
+            "type": {
+              "defined": {
+                "name": "ExecutionStatus"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}

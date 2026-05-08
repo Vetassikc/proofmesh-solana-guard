@@ -1,9 +1,12 @@
 import { createHash } from "node:crypto";
 
+/** Guard decision outcome for a payout intent. */
 export type GuardDecisionKind = "RELEASE" | "CAP" | "HOLD" | "BLOCK";
 
+/** Status of an individual proof within a proof bundle. */
 export type ProofStatus = "PASS" | "FAIL" | "MISSING" | "EXPIRED";
 
+/** A proposed payout from a treasury to a recipient. */
 export interface PayoutIntent {
   id: string;
   treasury: string;
@@ -15,10 +18,13 @@ export interface PayoutIntent {
     vendorId: string;
     description: string;
   };
+  /** Unique nonce to prevent replay. */
   nonce: string;
+  /** ISO 8601 expiry timestamp. */
   expiresAt: string;
 }
 
+/** An inspectable fact used during policy evaluation. */
 export interface Proof {
   kind: "recipient_identity" | "wallet_risk" | "invoice_integrity";
   source: string;
@@ -30,6 +36,7 @@ export interface Proof {
   expiresAt?: string;
 }
 
+/** Deterministic commitment binding a payout intent to its proofs. */
 export interface ProofBundle {
   intentHash: string;
   proofs: readonly Proof[];
@@ -45,6 +52,10 @@ export interface GuardDecision {
   policyId: string;
 }
 
+/**
+ * The core product object: a verifiable artifact created before a risky payout.
+ * Maps to RELEASE, CAP, HOLD, or BLOCK and can be anchored on Solana as a PDA.
+ */
 export interface TrustPermit {
   permitId: string;
   intentHash: string;
@@ -55,7 +66,9 @@ export interface TrustPermit {
   issuer: string;
   issuedAt: string;
   expiresAt: string;
+  /** Solana PDA address, set after anchoring. */
   solanaAccount?: string;
+  /** Transaction signature, set after anchoring. */
   transactionSignature?: string;
 }
 
@@ -75,9 +88,12 @@ export interface VerificationResult {
   proofRoot: string;
 }
 
+/** Policy configuration that controls decision thresholds and required proofs. */
 export interface GuardPolicy {
   policyId: string;
+  /** Maximum amount in lamports for a RELEASE decision; above this triggers CAP. */
   maxReleaseLamports: string;
+  /** Proof kinds that must be present and non-failed for RELEASE or CAP. */
   requiredProofKinds: readonly Proof["kind"][];
   evaluatedAt: string;
 }
@@ -88,6 +104,7 @@ export interface GuardScenario {
   generatedAt: string;
 }
 
+/** Default policy: 1 SOL cap, requires all three proof kinds. */
 export const DEFAULT_GUARD_POLICY: GuardPolicy = {
   policyId: "proofmesh-default-v1",
   maxReleaseLamports: "1000000000",
@@ -258,18 +275,25 @@ function normalizeForCanonicalJson(value: unknown): CanonicalValue {
   throw new TypeError(`Cannot canonicalize value of type ${typeof value}`);
 }
 
+/** Serialize a value to deterministic JSON with sorted keys. */
 export function canonicalJson(value: unknown): string {
   return JSON.stringify(normalizeForCanonicalJson(value));
 }
 
+/** SHA-256 hash of canonical JSON representation. */
 export function hashCanonicalJson(value: unknown): string {
   return createHash("sha256").update(canonicalJson(value)).digest("hex");
 }
 
+/** Compute the deterministic hash of a payout intent. */
 export function hashPayoutIntent(intent: PayoutIntent): string {
   return hashCanonicalJson(intent);
 }
 
+/**
+ * Build a deterministic proof bundle from an intent and its proofs.
+ * The bundle commits to the intent hash and proof root for verification.
+ */
 export function buildProofBundle(
   intent: PayoutIntent,
   proofs: readonly Proof[],
@@ -293,6 +317,10 @@ export function buildProofBundle(
   };
 }
 
+/**
+ * Evaluate a payout intent against a policy to produce a guard decision.
+ * Returns RELEASE, CAP, HOLD, or BLOCK based on proof status and amount limits.
+ */
 export function evaluatePayoutIntent(
   intent: PayoutIntent,
   bundle: ProofBundle,
@@ -395,6 +423,10 @@ export function computeTrustPermitId(input: TrustPermitCore): string {
   return hashCanonicalJson(buildTrustPermitCore(input));
 }
 
+/**
+ * Issue a trust permit binding the intent, proof bundle, and guard decision.
+ * The permit ID is deterministic — same inputs always produce the same permit.
+ */
 export function issueTrustPermit(
   intent: PayoutIntent,
   bundle: ProofBundle,
@@ -423,6 +455,10 @@ export function issueTrustPermit(
   };
 }
 
+/**
+ * Verify a trust permit's integrity against its source intent and proof bundle.
+ * Checks permit ID, intent hash, proof root, and amount consistency.
+ */
 export function verifyTrustPermit(
   permit: TrustPermit,
   intent: PayoutIntent,

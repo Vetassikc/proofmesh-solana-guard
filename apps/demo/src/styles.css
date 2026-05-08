@@ -315,6 +315,22 @@ h3 {
   color: #f7fff9;
 }
 
+@keyframes flowStepReveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.flow-step-animate {
+  animation: flowStepReveal 320ms ease-out both;
+  animation-delay: calc(var(--step-index, 0) * 120ms);
+}
+
 .scenario-grid {
   display: grid;
   gap: 24px;
@@ -468,11 +484,74 @@ h3 {
   margin-top: 10px;
 }
 
+.proof-inspector {
+  margin-top: 22px;
+}
+
+.proof-cards {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 10px;
+}
+
+.proof-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid #14f195;
+  padding: 14px;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.proof-card.proof-fail {
+  border-top-color: #ff6b6b;
+  box-shadow: inset 0 2px 18px rgba(255, 107, 107, 0.08);
+}
+
+.proof-card-header {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.proof-card-header strong {
+  color: #f7fff9;
+  font-size: 0.88rem;
+}
+
+.proof-badge {
+  border-radius: 999px;
+  color: #07110e;
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  font-weight: 900;
+  padding: 3px 8px;
+}
+
+.proof-badge-pass {
+  background: #14f195;
+}
+
+.proof-badge-fail {
+  animation: permitPulse 1.6s ease-in-out infinite;
+  background: #ff6b6b;
+}
+
+.proof-card p {
+  color: #9dafaa;
+  font-size: 0.82rem;
+  margin-top: 8px;
+}
+
 .amounts {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   margin: 22px 0;
 }
 
@@ -483,6 +562,26 @@ h3 {
 .amounts div + div {
   border-left: 1px solid rgba(255, 255, 255, 0.1);
   padding-left: 18px;
+}
+
+.amount-arrow {
+  border-left: none !important;
+  color: #8ca098;
+  font-size: 1.6rem;
+  padding: 0 14px !important;
+  text-align: center;
+}
+
+.amounts-release .amount-arrow {
+  color: #14f195;
+}
+
+.amounts-cap .amount-arrow {
+  color: #ffb347;
+}
+
+.amounts-block .amount-arrow {
+  color: #ff6b6b;
 }
 
 .amounts span,
@@ -500,6 +599,25 @@ h3 {
   font-size: clamp(2rem, 3.5vw, 3rem);
   letter-spacing: 0;
   line-height: 1;
+}
+
+.amount-struck {
+  color: #8ca098 !important;
+  text-decoration: line-through;
+  text-decoration-color: rgba(255, 107, 107, 0.5);
+}
+
+.amount-approved-release {
+  color: #14f195 !important;
+}
+
+.amount-approved-cap {
+  color: #ffb347 !important;
+}
+
+.amount-approved-block {
+  animation: permitPulse 1.6s ease-in-out infinite;
+  color: #ff6b6b !important;
 }
 
 .evidence-list {
@@ -644,6 +762,26 @@ button:disabled {
 
 .status.error {
   color: #ffb3b3;
+}
+
+.status.loading {
+  color: #9ef4c9;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+  border: 2px solid rgba(158, 244, 201, 0.25);
+  border-radius: 50%;
+  border-top-color: #14f195;
+  display: inline-block;
+  height: 14px;
+  margin-right: 8px;
+  vertical-align: middle;
+  width: 14px;
 }
 
 .live-evidence {
@@ -876,6 +1014,47 @@ button:disabled {
   white-space: nowrap;
 }
 
+.builders-section {
+  padding: 48px 28px;
+}
+
+.builder-cards {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 20px;
+}
+
+.builder-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid rgba(20, 241, 149, 0.4);
+  padding: 20px;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.builder-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(158, 244, 201, 0.28);
+  transform: translateY(-1px);
+}
+
+.builder-card strong {
+  color: #f7fff9;
+  display: block;
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+
+.builder-card p {
+  color: #9dafaa;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
 @media (max-width: 860px) {
   .workspace,
   .ledger {
@@ -888,7 +1067,9 @@ button:disabled {
     display: grid;
   }
 
-  .proof-strip {
+  .proof-strip,
+  .proof-cards,
+  .builder-cards {
     grid-template-columns: 1fr;
   }
 

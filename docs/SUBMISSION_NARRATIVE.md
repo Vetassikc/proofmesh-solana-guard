@@ -121,18 +121,73 @@ or agent wallet can integrate the permit step before moving funds.
 
 ## Business Path
 
-The open-source SDK stays free. The commercial path is a hosted Guard API for
-teams that want:
+The open-source SDK stays free. The commercial path is a hosted Guard API.
 
-- managed proof bundles
-- higher rate limits
-- audit retention
-- monitoring and alerting
-- team-level policy configuration
-- operational support for agent or DAO treasury workflows
+### Pricing Model
+
+| Tier | Price | Includes |
+|------|-------|----------|
+| **Open Source** | Free | SDK, self-hosted policy evaluation, deterministic proof bundles, permit PDA derivation, local verification |
+| **Pro** | $99/mo | 10,000 permits/month, managed proof bundles, 30-day audit retention, webhook alerts, dashboard |
+| **Enterprise** | Custom | Unlimited permits, SLA, dedicated proof providers, 1-year audit retention, custom policy engine, priority support |
+
+### Market Sizing
+
+Autonomous agent wallets and DAO treasury tools are the fastest-growing payment
+surfaces on Solana. Conservative estimates:
+
+- 200+ active Solana agent wallet projects (SendAI, Jito restaking bots,
+  trading agents, DePIN operators)
+- 500+ DAO treasuries managing material SOL and SPL token balances
+- growing demand for programmatic payout safety as agent autonomy increases
+
+At 5% early adoption of the Pro tier across agent and DAO teams:
+~35 teams at $99/mo equals roughly $3,500 MRR, or about $42,000 ARR, growing
+with agent ecosystem expansion.
 
 The wedge is narrow and monetizable: payment risk checks before autonomous or
 semi-autonomous treasury execution.
+
+### Go-To-Market
+
+1. **Open-source SDK** → developer adoption through hackathons, GitHub, and
+   Solana ecosystem channels.
+2. **Hackathon teams** → first users who integrate the permit step into agent
+   wallet or DAO treasury projects.
+3. **Agent tool partnerships** → direct integration with agent frameworks
+   (SendAI, ElizaOS, Rig) and DAO tooling (Realms, Squads) as a composable
+   safety layer.
+
+### Revenue Projection
+
+| Period | Teams | Tier | MRR |
+|--------|-------|------|-----|
+| Month 1-3 | 0 | Beta (free) | $0 |
+| Month 4-6 | 5 | Pro ($99/mo) | $495 |
+| Month 7-9 | 15 | Pro ($99/mo) + 1 Enterprise | ~$2,500 |
+| Month 10-12 | 30 | Pro + 3 Enterprise | ~$6,000 |
+| Year 2 | 80+ | Ecosystem growth | $15,000+ |
+
+Revenue model assumes organic developer adoption through the open-source SDK
+and conversion to Pro/Enterprise tiers as teams move from devnet to mainnet
+production workflows.
+
+### Competitive Landscape
+
+| Capability | ProofMesh Guard | Multisig (Squads) | Governance (Realms) | Off-chain risk API |
+|------------|-----------------|-------------------|---------------------|-------------------|
+| Composable on-chain artifact | ✅ Permit PDA | ❌ Approval state | ❌ Vote result | ❌ API response |
+| Inspectable proof bundle | ✅ Deterministic | ❌ N/A | ❌ N/A | ⚠️ Opaque score |
+| Automated decision (no human) | ✅ Policy engine | ❌ Requires signers | ❌ Requires voters | ✅ Automated |
+| Payout gating (RELEASE/CAP/BLOCK) | ✅ Native | ⚠️ Approve/reject only | ⚠️ Approve/reject only | ❌ Advisory only |
+| SDK-first integration | ✅ TypeScript SDK | ⚠️ SDK exists | ⚠️ SDK exists | ✅ REST API |
+| Blocked evidence anchoring | ✅ On-chain | ❌ Not anchored | ❌ Not anchored | ❌ Not anchored |
+
+Squads solves approval coordination, not risk verification. Realms solves
+governance voting, not payout safety. Off-chain risk APIs give advisory scores,
+not composable on-chain permits. ProofMesh Guard is the missing layer: a
+verifiable, inspectable trust permit that another Solana program can check
+before it lets capital move.
 
 ## Differentiation
 
@@ -140,6 +195,14 @@ ProofMesh Guard is different from a dashboard because the permit is the product
 object. The project does not ask the judge to trust a UI. It shows a policy
 decision, anchors a compact permit on Solana devnet, verifies the permit PDA,
 and executes or blocks payout behavior according to the permit.
+
+### Cross-Program Composability
+
+Another Solana program can read the permit PDA account to check whether a valid,
+unexpired, non-blocked permit exists before executing its own payout logic. This
+makes the trust permit a composable building block, not a standalone product. A
+lending protocol, agent framework, or DAO tool can require a ProofMesh Guard
+permit as a precondition for any risky capital movement.
 
 The strongest sentence for judges:
 
