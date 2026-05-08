@@ -2,6 +2,8 @@
 
 Trust permits for Solana agent payments.
 
+Live demo: https://proofmesh-solana-guard.vercel.app
+
 ProofMesh Guard is a Solana-native open-source primitive for guarded agent and
 DAO treasury payouts. Before funds move, a payout intent is checked against an
 inspectable proof bundle, mapped to `RELEASE`, `CAP`, `HOLD`, or `BLOCK`,
@@ -172,6 +174,14 @@ ProofMesh Guard is optimized for Colosseum Frontier judging criteria:
 
 Submission-ready narrative і demo guidance лежать тут:
 
+- [docs/SUBMISSION_READINESS_CHECKLIST.md](docs/SUBMISSION_READINESS_CHECKLIST.md) - final
+  Colosseum readiness checklist based on the Superteam guide.
+- [docs/COLOSSEUM_SUBMISSION_COPY.md](docs/COLOSSEUM_SUBMISSION_COPY.md) - copy/paste
+  answers for the Colosseum project, media, team, accelerator, and survey fields.
+- [docs/PITCH_VIDEO_SCRIPT.md](docs/PITCH_VIDEO_SCRIPT.md) - pitch deck structure and
+  two-minute voice script.
+- [docs/TECH_DEMO_SCRIPT_FINAL.md](docs/TECH_DEMO_SCRIPT_FINAL.md) - final tech demo
+  recording path aligned with the Superteam guide.
 - [docs/SUBMISSION_NARRATIVE.md](docs/SUBMISSION_NARRATIVE.md) - one-liner,
   problem, solution, evidence, business path і copy blocks.
 - [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) - 90-second video script, live demo
