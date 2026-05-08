@@ -1,13 +1,13 @@
+.anchor/
+.vercel/
+target/
 node_modules/
-.DS_Store
 dist/
 dist-test/
 coverage/
 .turbo/
 .next/
-target/
-.anchor/
+.DS_Store
 .env
 .env.*
 !.env.example
-.vercel
