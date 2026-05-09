@@ -14,6 +14,10 @@
 - Найсильніші докази став на початок: devnet program, RELEASE/CAP/BLOCK,
   public repo, SDK.
 
+Якщо збираєш deck по слайдах, використовуй
+[`PITCH_DECK_CONTENT.md`](./PITCH_DECK_CONTENT.md) як основний slide-by-slide
+brief.
+
 ## Deck Outline
 
 ### Slide 1 - What It Is

@@ -178,6 +178,8 @@ Submission-ready narrative і demo guidance лежать тут:
   Colosseum readiness checklist based on the Superteam guide.
 - [docs/COLOSSEUM_SUBMISSION_COPY.md](docs/COLOSSEUM_SUBMISSION_COPY.md) - copy/paste
   answers for the Colosseum project, media, team, accelerator, and survey fields.
+- [docs/PITCH_DECK_CONTENT.md](docs/PITCH_DECK_CONTENT.md) - slide-by-slide
+  pitch deck content, visuals, and voiceover.
 - [docs/PITCH_VIDEO_SCRIPT.md](docs/PITCH_VIDEO_SCRIPT.md) - pitch deck structure and
   two-minute voice script.
 - [docs/TECH_DEMO_SCRIPT_FINAL.md](docs/TECH_DEMO_SCRIPT_FINAL.md) - final tech demo
