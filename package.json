@@ -4,6 +4,14 @@
   "private": true,
   "description": "Trust permits for Solana agent payments.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vetassikc/proofmesh-solana-guard.git"
+  },
+  "homepage": "https://proofmesh-solana-guard.vercel.app",
+  "bugs": {
+    "url": "https://github.com/Vetassikc/proofmesh-solana-guard/issues"
+  },
   "type": "module",
   "dependencies": {
     "@proofmesh/guard-sdk": "workspace:*"
@@ -14,6 +22,7 @@
   },
   "scripts": {
     "check": "pnpm typecheck && pnpm test",
+    "verify": "pnpm typecheck && pnpm test && pnpm --filter @proofmesh/demo build",
     "build:scripts": "pnpm --filter @proofmesh/guard-sdk build && tsc -p tsconfig.scripts.json",
     "devnet:block": "pnpm build:scripts && node scripts/dist/devnet/run_guarded_payout.js block",
     "devnet:cap": "pnpm build:scripts && node scripts/dist/devnet/run_guarded_payout.js cap",

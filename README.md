@@ -4,6 +4,9 @@ Trust permits for Solana agent payments.
 
 Live demo: https://proofmesh-solana-guard.vercel.app
 
+[![CI](https://github.com/Vetassikc/proofmesh-solana-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/Vetassikc/proofmesh-solana-guard/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 ProofMesh Guard is a Solana-native open-source primitive for guarded agent and
 DAO treasury payouts. Before funds move, a payout intent is checked against an
 inspectable proof bundle, mapped to `RELEASE`, `CAP`, `HOLD`, or `BLOCK`,
@@ -20,6 +23,17 @@ custody system, an escrow system, or a compliance suite. The core object is a
 `TrustPermit`: a compact, verifiable artifact that another Solana application
 can inspect before allowing capital to move.
 
+## 30-Second Path
+
+1. Open the [live demo](https://proofmesh-solana-guard.vercel.app).
+2. Stay in `Evidence Mode` and choose `RELEASE`, `CAP`, or `BLOCK`.
+3. Inspect the proof bundle, decision, permit PDA, and explorer links.
+4. Switch to `Ledger / Verify` to recompute PDA and amount invariants.
+5. Read the [builder quickstart](#builder-quickstart) for the SDK flow.
+
+Captured evidence works without a wallet. `Live Wallet Mode` is an optional
+devnet-only path for a fresh run with a wallet you control.
+
 ## MVP Promise
 
 The hackathon MVP is intentionally narrow:
@@ -35,20 +49,20 @@ The hackathon MVP is intentionally narrow:
 `HOLD` remains part of the SDK and data model, but it is not a primary judge
 scenario for the first demo.
 
-## Інтеграція ProofMesh Guard
+## Builder Quickstart
 
 ProofMesh Guard is designed as a reusable Solana trust-permit primitive. A
 builder can run the SDK before an agent wallet, DAO treasury tool, or payment
 bot sends a risky payout.
 
-Встанови залежності з цього workspace:
+Install dependencies from this workspace:
 
 ```bash
 pnpm install
 pnpm --filter @proofmesh/guard-sdk build
 ```
 
-Додай локальний SDK package в інший workspace package:
+Add the local SDK package to another workspace package:
 
 ```json
 {
@@ -58,7 +72,7 @@ pnpm --filter @proofmesh/guard-sdk build
 }
 ```
 
-Мінімальний flow:
+Minimal flow:
 
 ```ts
 import { PublicKey } from "@solana/web3.js";
@@ -117,14 +131,14 @@ metadata on devnet. The `execute_payout` instruction moves native devnet SOL
 only for `RELEASE` and `CAP` permits that are unexpired and not already
 executed.
 
-Запусти локальний integration example:
+Run the local integration example:
 
 ```bash
 pnpm example:integration
 ```
 
-Для deployed devnet evidence flows після налаштування devnet wallet поза
-репозиторієм дивись [docs/DEVNET_RUNBOOK.md](docs/DEVNET_RUNBOOK.md).
+For deployed devnet evidence flows after configuring a devnet wallet outside
+the repository, see [docs/DEVNET_RUNBOOK.md](docs/DEVNET_RUNBOOK.md).
 
 ## Why TrustPermit
 
@@ -168,7 +182,28 @@ ProofMesh Guard is optimized for Colosseum Frontier judging criteria:
 - Solana technology usage: PDA permit accounts, devnet anchoring, guarded payout
   execution, and explorer-verifiable evidence
 - open-source composability: SDK-first interfaces and inspectable fixtures
-- business plan: free SDK, Pro tier at $99/mo, Enterprise custom pricing
+- adoption path: SDK-first integration for Solana agents, DAO treasuries, and
+  payment bots
+
+## Open-source Status
+
+ProofMesh Guard is a focused, composable OSS primitive. Changes should preserve
+deterministic SDK behavior, the TrustPermit contract, and the Solana devnet demo
+boundary.
+
+- [Contributing guide](CONTRIBUTING.md) - local setup, tests, and change scope
+- [Security policy](SECURITY.md) - responsible vulnerability reporting
+- [Changelog](CHANGELOG.md) - release and unreleased maintenance notes
+- [Open issues](https://github.com/Vetassikc/proofmesh-solana-guard/issues) -
+  bugs, integration questions, and narrowly scoped improvements
+
+Every pull request is checked by the repository CI workflow with the supported
+Node.js and pnpm toolchain. Runtime credentials, wallets, and provider secrets
+are never required for the local SDK and fixture test path.
+
+The repository is intentionally a devnet-oriented hackathon build. It is not a
+custody system, escrow system, compliance suite, or production security
+guarantee.
 
 ## Submission Package
 
@@ -212,9 +247,7 @@ Workspace містить:
 
 ```bash
 pnpm install
-pnpm typecheck
-pnpm test
-pnpm --filter @proofmesh/demo build
+pnpm verify
 pnpm example:integration
 pnpm example:dao-bot
 ```

@@ -2,6 +2,15 @@
 
 All notable changes to ProofMesh Guard are documented here.
 
+## [Unreleased]
+
+### Added
+
+- Continuous integration for the supported Node.js and pnpm toolchain.
+- Private vulnerability-reporting guidance and GitHub contribution templates.
+- OSS-first repository metadata, builder quickstart, and an evidence-led demo
+  entry path.
+
 ## [0.1.0] — 2026-05-08
 
 ### Added

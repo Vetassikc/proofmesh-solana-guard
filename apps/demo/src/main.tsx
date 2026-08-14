@@ -42,6 +42,9 @@ import {
 } from "./verification";
 import "./styles.css";
 
+const SDK_QUICKSTART_URL =
+  "https://github.com/Vetassikc/proofmesh-solana-guard#builder-quickstart";
+
 declare global {
   interface Window {
     Buffer?: typeof Buffer;
@@ -54,13 +57,15 @@ if (typeof window !== "undefined" && !window.Buffer) {
 
 function ExternalLink({
   children,
-  href
+  href,
+  className
 }: {
   children: React.ReactNode;
   href: string;
+  className?: string;
 }) {
   return (
-    <a href={href} rel="noreferrer" target="_blank">
+    <a className={className} href={href} rel="noreferrer" target="_blank">
       {children}
       <span aria-hidden="true">↗</span>
     </a>
@@ -151,6 +156,8 @@ function ModeSwitch({
       {modeOptions.map((option) => (
         <button
           aria-selected={mode === option.id}
+          aria-controls="demo-panel"
+          id={`mode-tab-${option.id}`}
           key={option.id}
           onClick={() => onSelect(option.id)}
           role="tab"
@@ -808,8 +815,30 @@ function AppContent() {
             </div>
             <h1>ProofMesh Guard</h1>
             <p className="tagline">
-              Trust permits before Solana agent payments move funds.
+              A verifiable permit before an autonomous payout moves funds.
             </p>
+            <div className="hero-status" aria-label="Project status">
+              <span className="status-dot" aria-hidden="true" />
+              <span>Live on Solana devnet</span>
+              <span aria-hidden="true">·</span>
+              <span>Open source · MIT</span>
+            </div>
+            <div className="hero-actions">
+              <button
+                className="primary-action"
+                onClick={() => setMode("evidence")}
+                type="button"
+              >
+                Explore evidence <span aria-hidden="true">→</span>
+              </button>
+              <ExternalLink
+                className="secondary-action link-action"
+                href={SDK_QUICKSTART_URL}
+              >
+                Read SDK quickstart
+              </ExternalLink>
+            </div>
+            <p className="hero-note">No wallet required for captured evidence.</p>
             <div className="proof-strip" aria-label="Submission proof points">
               <div>
                 <span>Permit object</span>
@@ -820,8 +849,8 @@ function AppContent() {
                 <strong>Guarded SOL payout</strong>
               </div>
               <div>
-                <span>Judge evidence</span>
-                <strong>All checks pass</strong>
+                <span>Proof layer</span>
+                <strong>Deterministic evidence</strong>
               </div>
             </div>
           </div>
@@ -830,36 +859,49 @@ function AppContent() {
             <ExternalLink href={programEvidence.explorerUrl}>
               {shortHash(programEvidence.programId)}
             </ExternalLink>
+            <small>Solana devnet</small>
           </div>
         </header>
 
         <ModeSwitch mode={mode} onSelect={setMode} />
 
-        {mode === "evidence" ? (
-          <EvidenceMode selectedId={selectedId} onSelect={setSelectedId} />
-        ) : mode === "ledger" ? (
-          <LedgerVerifyMode />
-        ) : (
-          <>
-            <nav aria-label="Live scenario selection" className="scenario-picker compact">
-              {scenarios.map((item) => (
-                <ScenarioButton
-                  active={item.id === selectedId}
-                  id={item.id}
-                  key={item.id}
-                  onSelect={setSelectedId}
-                />
-              ))}
-            </nav>
-            <LiveWalletMode selectedId={selectedId} />
-          </>
-        )}
+        <section
+          aria-labelledby={`mode-tab-${mode}`}
+          className="demo-panel"
+          id="demo-panel"
+          role="tabpanel"
+          tabIndex={-1}
+        >
+          {mode === "evidence" ? (
+            <EvidenceMode selectedId={selectedId} onSelect={setSelectedId} />
+          ) : mode === "ledger" ? (
+            <LedgerVerifyMode />
+          ) : (
+            <>
+              <nav
+                aria-label="Live scenario selection"
+                className="scenario-picker compact"
+              >
+                {scenarios.map((item) => (
+                  <ScenarioButton
+                    active={item.id === selectedId}
+                    id={item.id}
+                    key={item.id}
+                    onSelect={setSelectedId}
+                  />
+                ))}
+              </nav>
+              <LiveWalletMode selectedId={selectedId} />
+            </>
+          )}
+        </section>
       </section>
 
       <section className="ledger">
         <div className="section-heading">
           <p className="eyebrow">Explorer-verifiable ledger</p>
           <h2>Captured devnet evidence</h2>
+          <p className="ledger-count">{ledgerRows.length} linked records</p>
         </div>
         <div className="ledger-table" role="table" aria-label="Devnet evidence ledger">
           {ledgerRows.map((row) => (

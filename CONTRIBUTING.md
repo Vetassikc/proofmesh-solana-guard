@@ -1,48 +1,59 @@
-# Як контриб'ютити в ProofMesh Guard
+# Contributing to ProofMesh Guard
 
-Цей репозиторій є hackathon build для ProofMesh Guard. Тримай зміни малими,
-перевіреними локально і прив'язаними до trust permit flow.
+ProofMesh Guard is a focused open-source build for trust permits before Solana
+agent payments and DAO treasury payouts. Keep changes small, evidence-backed,
+and inside the TrustPermit boundary.
 
-## Старт
+## Getting Started
 
 ```bash
 pnpm install
-pnpm typecheck
-pnpm test
+pnpm verify
 ```
 
-## Структура
+`pnpm verify` runs workspace typechecks, tests, and the demo production build.
+The default local path does not require a wallet, private key, `.env` file, or
+live provider credential.
+
+## Repository Structure
 
 - `packages/sdk` - TypeScript SDK for trust permits
 - `programs/proofmesh_guard` - Anchor program for Solana devnet
-- `apps/demo` - judge-facing web demo
+- `apps/demo` - evidence-first web demo
 - `examples/` - integration examples
-- `docs/` - architecture and submission documentation
+- `docs/` - architecture, demo, and submission documentation
 
-## Розробка
+## Development Rules
 
-1. Роби невеликі, reversible changes з локальною перевіркою.
-2. Перед комітом запускай `pnpm typecheck && pnpm test`.
-3. Код, коментарі в коді, SDK examples і commit messages тримай англійською.
-4. Не коміть secrets, `.env` файли, private keys або credentials.
+1. Make small, reversible changes with focused local verification.
+2. Run `pnpm verify` before opening a pull request.
+3. Keep code, code comments, SDK examples, and commit messages in English.
+4. Never commit secrets, `.env` files, private keys, wallets, or credentials.
+5. Preserve the existing Solana devnet and deterministic fixture boundaries.
 
-## Зміни SDK
+## SDK Changes
 
-SDK використовує deterministic hashing і canonical JSON encoding. Якщо змінюєш
-hashing logic, потрібно регенерувати всі fixtures і devnet evidence.
+The SDK uses deterministic hashing and canonical JSON encoding. If hashing logic
+changes, regenerate every affected fixture and devnet evidence artifact, then
+document the compatibility impact in `CHANGELOG.md`.
 
-## Anchor Program
+## Anchor Program Changes
 
-Програма вже deployed on Solana devnet. Зміни Anchor program потребують
-`anchor build`, `anchor test` і redeploy. Не змінюй program ID без оновлення
-всіх references у demo, docs, scripts і examples.
+The program is deployed on Solana devnet. Anchor changes require `anchor build`,
+`anchor test`, and a deliberate redeploy. Do not change the program ID without
+updating every affected reference in the demo, docs, scripts, and examples.
 
-## Issues і feedback
+## Issues and Pull Requests
 
-Для bugs, feature ideas або integration questions відкривай issue. Pull
-requests для SDK improvements, additional proof kinds і policy engine
-extensions доречні, якщо вони не розширюють MVP у generic agent platform.
+Open an issue for a reproducible bug, integration question, or narrowly scoped
+feature proposal. Pull requests for SDK improvements, additional proof kinds,
+and policy-engine extensions are welcome when they do not turn the project into
+a generic agent platform, custody system, escrow system, compliance suite, or
+multi-chain flow.
+
+For undisclosed security issues, follow [SECURITY.md](SECURITY.md) instead of
+opening a public issue.
 
 ## License
 
-MIT - дивись [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).

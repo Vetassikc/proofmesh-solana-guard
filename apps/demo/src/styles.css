@@ -35,6 +35,11 @@ a:hover {
   color: #c8ffdf;
 }
 
+:where(a, button, textarea):focus-visible {
+  outline: 2px solid #f4c95d;
+  outline-offset: 3px;
+}
+
 main {
   background:
     linear-gradient(135deg, rgba(20, 241, 149, 0.1), transparent 35rem),
@@ -67,6 +72,49 @@ main {
 .hero-copy {
   animation: riseIn 420ms ease both;
   max-width: 860px;
+}
+
+.hero-status {
+  align-items: center;
+  color: #9dafaa;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.84rem;
+  font-weight: 700;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.status-dot {
+  background: #14f195;
+  border-radius: 999px;
+  box-shadow: 0 0 18px rgba(20, 241, 149, 0.5);
+  height: 8px;
+  width: 8px;
+}
+
+.hero-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.hero-actions .primary-action,
+.hero-actions .link-action {
+  min-height: 46px;
+  padding: 11px 15px;
+}
+
+.link-action {
+  justify-content: center;
+}
+
+.hero-note {
+  color: #8ca098;
+  font-size: 0.82rem;
+  margin-top: 10px;
 }
 
 .brand-lockup {
@@ -195,6 +243,17 @@ h3 {
 .program-link a {
   font-weight: 800;
   margin-top: 4px;
+}
+
+.program-link small {
+  color: #8ca098;
+  display: block;
+  font-size: 0.72rem;
+  margin-top: 8px;
+}
+
+.demo-panel {
+  scroll-margin-top: 24px;
 }
 
 .mode-switch {
@@ -978,6 +1037,14 @@ button:disabled {
   margin-top: 18px;
 }
 
+.ledger-count {
+  align-self: flex-end;
+  color: #8ca098;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .ledger-row {
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -1067,6 +1134,10 @@ button:disabled {
     display: grid;
   }
 
+  .ledger-count {
+    align-self: start;
+  }
+
   .proof-strip,
   .proof-cards,
   .builder-cards {
@@ -1111,6 +1182,15 @@ button:disabled {
 }
 
 @media (max-width: 560px) {
+  .hero-actions {
+    align-items: stretch;
+    display: grid;
+  }
+
+  .hero-actions > * {
+    width: 100%;
+  }
+
   .amounts,
   .evidence-row,
   .ledger-row,
@@ -1126,5 +1206,16 @@ button:disabled {
 
   .flow-rail {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

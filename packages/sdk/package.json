@@ -3,6 +3,22 @@
   "version": "0.1.0",
   "description": "TypeScript SDK foundation for ProofMesh Guard trust permits.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vetassikc/proofmesh-solana-guard.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://proofmesh-solana-guard.vercel.app",
+  "bugs": {
+    "url": "https://github.com/Vetassikc/proofmesh-solana-guard/issues"
+  },
+  "keywords": [
+    "solana",
+    "trust-permit",
+    "agent-payments",
+    "dao-treasury",
+    "typescript"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
